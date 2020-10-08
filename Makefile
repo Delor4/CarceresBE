@@ -1,6 +1,10 @@
-.PHONY: all install run
 
-all:
+CMDS = help install run init_db
+
+.PHONY: $(CMDS)
+
+help:
+	@echo Possible targets: $(CMDS)
 
 install:
 	pip install -r requirements.txt
