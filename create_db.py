@@ -8,8 +8,8 @@ if __name__ == "__main__":
     import base
 
     import models.user
+    import models.zone
+    import models.place
 
     engine = create_engine(DB_URI)
     base.Base.metadata.create_all(engine, checkfirst=True)
-
-

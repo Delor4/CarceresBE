@@ -15,6 +15,9 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 import models.user
+import models.zone
+import models.place
+
 
 if __name__ == '__main__':
     manager.run()

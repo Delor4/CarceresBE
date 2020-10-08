@@ -10,9 +10,18 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 api = Api(app)
 
 from resources.user import UserListResource, UserResource
+from resources.place import PlaceListResource, PlaceResource
+from resources.zone import ZoneListResource, ZoneResource
 
 api.add_resource(UserListResource, '/api/users', endpoint='users')
 api.add_resource(UserResource, '/api/users/<string:id>', endpoint='user')
+
+api.add_resource(ZoneListResource, '/api/zones', endpoint='zones')
+api.add_resource(ZoneResource, '/api/zones/<string:id>', endpoint='zone')
+
+api.add_resource(PlaceListResource, '/api/places', endpoint='places')
+api.add_resource(PlaceResource, '/api/places/<string:id>', endpoint='place')
+
 
 # Everything not declared before (not a Flask route / API endpoint)...
 @app.route("/<path:path>")
