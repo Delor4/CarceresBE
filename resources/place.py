@@ -14,11 +14,17 @@ place_fields = {
     'nr': fields.Integer,
     'uri': fields.Url('place', absolute=True),
     'zone_id': fields.Integer,
+    'name': fields.String,
+    'pos_x': fields.Float,
+    'pos_y': fields.Float,
 }
 
 parser = reqparse.RequestParser()
-parser.add_argument('nr', type=int)
-parser.add_argument('zone_id', type=int)
+parser.add_argument('nr', type=int, required=True, nullable=False)
+parser.add_argument('zone_id', type=int, required=True, nullable=False)
+parser.add_argument('name', type=str, required=False, nullable=True)
+parser.add_argument('pos_x', type=float, required=False, nullable=True)
+parser.add_argument('pos_y', type=float, required=False, nullable=True)
 
 
 class PlaceResource(Resource):
@@ -42,6 +48,10 @@ class PlaceResource(Resource):
         parsed_args = parser.parse_args()
         place = session.query(Place).filter(Place.id == id).first()
         place.nr = parsed_args['nr']
+        place.zone_id = parsed_args['zone_id']
+        place.name = parsed_args['name']
+        place.pos_x = parsed_args['pos_x']
+        place.pos_y = parsed_args['pos_y']
         zone = session.query(Zone).filter(Zone.id == parsed_args['zone_id']).first()
         zone.places.append(place)
         session.add(place)
@@ -52,13 +62,14 @@ class PlaceResource(Resource):
 class PlaceListResource(Resource):
     @marshal_with(place_fields)
     def get(self):
-        place = session.query(Place).all()
-        return place
+        places = session.query(Place).all()
+        return places
 
     @marshal_with(place_fields)
     def post(self):
         parsed_args = parser.parse_args()
-        place = Place(nr=parsed_args['nr'], zone_id=parsed_args['zone_id'])
+        place = Place(nr=parsed_args['nr'], zone_id=parsed_args['zone_id'], name=parsed_args['name'],
+                      pos_x=parsed_args['pos_x'], pos_y=parsed_args['pos_y'])
         zone = session.query(Zone).filter(Zone.id == parsed_args['zone_id']).first()
         zone.places.append(place)
         session.add(place)
