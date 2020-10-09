@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from base import Base
-from sqlalchemy import Column, ForeignKey, Index, DateTime, UniqueConstraint
+from sqlalchemy import Column, ForeignKey, DateTime, UniqueConstraint
 from sqlalchemy import Integer, String, Float
 from datetime import datetime
 

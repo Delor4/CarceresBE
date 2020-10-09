@@ -14,6 +14,7 @@ from resources.place import PlaceListResource, PlaceResource
 from resources.zone import ZoneListResource, ZoneResource
 from resources.client import ClientListResource, ClientResource
 from resources.car import CarListResource, CarResource
+from resources.subscription import SubscriptionListResource, SubscriptionResource
 
 api.add_resource(UserListResource, '/api/users', endpoint='users')
 api.add_resource(UserResource, '/api/users/<string:id>', endpoint='user')
@@ -29,6 +30,9 @@ api.add_resource(ZoneResource, '/api/zones/<string:id>', endpoint='zone')
 
 api.add_resource(PlaceListResource, '/api/places', endpoint='places')
 api.add_resource(PlaceResource, '/api/places/<string:id>', endpoint='place')
+
+api.add_resource(SubscriptionListResource, '/api/subscriptions', endpoint='subscriptions')
+api.add_resource(SubscriptionResource, '/api/subscriptions/<string:id>', endpoint='subscription')
 
 
 # Everything not declared before (not a Flask route / API endpoint)...

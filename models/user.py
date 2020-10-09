@@ -3,8 +3,7 @@
 from base import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, ForeignKey
-from sqlalchemy import Integer
-from sqlalchemy import String
+from sqlalchemy import Integer, String
 
 
 class User(Base):
@@ -14,4 +13,3 @@ class User(Base):
     name = Column(String(193), unique=True)
     user_type = Column(Integer)
     # TODO: add relation to client (nullable)
-

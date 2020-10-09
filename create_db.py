@@ -12,6 +12,7 @@ if __name__ == "__main__":
     import models.car
     import models.zone
     import models.place
+    import models.subscription
 
     engine = create_engine(DB_URI)
     base.Base.metadata.create_all(engine, checkfirst=True)

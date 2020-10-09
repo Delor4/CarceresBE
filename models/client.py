@@ -3,8 +3,7 @@ from sqlalchemy.orm import relationship
 
 from base import Base
 from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
+from sqlalchemy import Integer, String
 
 
 class Client(Base):

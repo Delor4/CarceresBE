@@ -2,8 +2,7 @@
 
 from base import Base
 from sqlalchemy import Column, ForeignKey
-from sqlalchemy import Integer
-from sqlalchemy import String
+from sqlalchemy import Integer, String
 
 
 class Car(Base):
