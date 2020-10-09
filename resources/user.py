@@ -11,7 +11,8 @@ from models.user import User
 user_fields = {
     'id': fields.Integer,
     'name': fields.String,
-    'user_type': fields.Integer
+    'user_type': fields.Integer,
+    'uri': fields.Url('user', absolute=True),
 }
 
 parser = reqparse.RequestParser()

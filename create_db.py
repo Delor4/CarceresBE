@@ -8,6 +8,8 @@ if __name__ == "__main__":
     import base
 
     import models.user
+    import models.client
+    import models.car
     import models.zone
     import models.place
 

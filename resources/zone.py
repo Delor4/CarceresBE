@@ -14,11 +14,12 @@ zone_fields = {
     'name': fields.String,
     'bkg_file': fields.String,
     'places': fields.Nested(place_fields),
+    'uri': fields.Url('zone', absolute=True),
 }
 
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str)
-parser.add_argument('bkg_field', type=str)
+parser.add_argument('bkg_file', type=str)
 
 
 class ZoneResource(Resource):

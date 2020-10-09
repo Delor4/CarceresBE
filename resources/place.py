@@ -12,11 +12,11 @@ from models.place import Place
 place_fields = {
     'id': fields.Integer,
     'nr': fields.Integer,
-    'uri': fields.Url('place', absolute=True),
     'zone_id': fields.Integer,
     'name': fields.String,
     'pos_x': fields.Float,
     'pos_y': fields.Float,
+    'uri': fields.Url('place', absolute=True),
 }
 
 parser = reqparse.RequestParser()
@@ -48,10 +48,10 @@ class PlaceResource(Resource):
         parsed_args = parser.parse_args()
         place = session.query(Place).filter(Place.id == id).first()
         place.nr = parsed_args['nr']
-        place.zone_id = parsed_args['zone_id']
         place.name = parsed_args['name']
         place.pos_x = parsed_args['pos_x']
         place.pos_y = parsed_args['pos_y']
+        place.zone_id = parsed_args['zone_id']
         zone = session.query(Zone).filter(Zone.id == parsed_args['zone_id']).first()
         zone.places.append(place)
         session.add(place)

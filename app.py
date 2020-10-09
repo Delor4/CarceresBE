@@ -13,12 +13,16 @@ from resources.user import UserListResource, UserResource
 from resources.place import PlaceListResource, PlaceResource
 from resources.zone import ZoneListResource, ZoneResource
 from resources.client import ClientListResource, ClientResource
+from resources.car import CarListResource, CarResource
 
 api.add_resource(UserListResource, '/api/users', endpoint='users')
 api.add_resource(UserResource, '/api/users/<string:id>', endpoint='user')
 
 api.add_resource(ClientListResource, '/api/clients', endpoint='clients')
 api.add_resource(ClientResource, '/api/clients/<string:id>', endpoint='client')
+
+api.add_resource(CarListResource, '/api/cars', endpoint='cars')
+api.add_resource(CarResource, '/api/cars/<string:id>', endpoint='car')
 
 api.add_resource(ZoneListResource, '/api/zones', endpoint='zones')
 api.add_resource(ZoneResource, '/api/zones/<string:id>', endpoint='zone')
