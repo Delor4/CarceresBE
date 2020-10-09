@@ -14,6 +14,7 @@ class Place(Base):
     name = Column(String(193), nullable=True)
     pos_x = Column(Float, nullable=True)
     pos_y = Column(Float, nullable=True)
+
     Column('created_on', DateTime(), default=datetime.now)
     Column('updated_on', DateTime(), default=datetime.now, onupdate=datetime.now)
 

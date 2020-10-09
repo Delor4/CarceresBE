@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from datetime import datetime
 
 from base import Base
 from sqlalchemy import Column, ForeignKey
@@ -15,3 +16,6 @@ class Subscription(Base):
 
     place_id = Column(Integer, ForeignKey("places.id"), nullable=False)
     car_id = Column(Integer, ForeignKey("cars.id"), nullable=False)
+
+    Column('created_on', DateTime(), default=datetime.now)
+    Column('updated_on', DateTime(), default=datetime.now, onupdate=datetime.now)

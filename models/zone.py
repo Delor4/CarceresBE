@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+from datetime import datetime
 
 from base import Base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column
+from sqlalchemy import Column, DateTime
 from sqlalchemy import Integer, String
 
 
@@ -13,3 +14,6 @@ class Zone(Base):
     name = Column(String(193), unique=True)
     bkg_file = Column(String(193), nullable=False)
     places = relationship("Place", backref="zones.id")
+
+    Column('created_on', DateTime(), default=datetime.now)
+    Column('updated_on', DateTime(), default=datetime.now, onupdate=datetime.now)
