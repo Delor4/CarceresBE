@@ -11,4 +11,7 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), unique=True)
+    name = Column(String(193), unique=True)
+    user_type = Column(Integer)
+    # TODO: add relation to client (nullable)
+

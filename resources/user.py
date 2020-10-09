@@ -11,10 +11,12 @@ from models.user import User
 user_fields = {
     'id': fields.Integer,
     'name': fields.String,
+    'user_type': fields.Integer
 }
 
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str)
+parser.add_argument('user_type', type=str)
 
 
 class UserResource(Resource):
@@ -22,7 +24,7 @@ class UserResource(Resource):
     def get(self, id):
         user = session.query(User).filter(User.id == id).first()
         if not user:
-            abort(404, message="User{} doesn't exist".format(id))
+            abort(404, message="User {} doesn't exist".format(id))
         return user
 
     def delete(self, id):
@@ -38,6 +40,7 @@ class UserResource(Resource):
         parsed_args = parser.parse_args()
         user = session.query(User).filter(User.id == id).first()
         user.name = parsed_args['name']
+        user.user_type = parsed_args['user_type']
         session.add(user)
         session.commit()
         return user, 201
@@ -52,7 +55,7 @@ class UserListResource(Resource):
     @marshal_with(user_fields)
     def post(self):
         parsed_args = parser.parse_args()
-        user = User(name=parsed_args['name'])
+        user = User(name=parsed_args['name'], user_type=parsed_args['user_type'])
         session.add(user)
         session.commit()
         return user, 201
