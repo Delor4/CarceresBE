@@ -1,11 +1,11 @@
 # !/usr/bin/env python
 from datetime import datetime
 
+from sqlalchemy import Column, DateTime, ForeignKey
+from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship
 
 from base import Base
-from sqlalchemy import Column, DateTime
-from sqlalchemy import Integer, String
 
 
 class Client(Base):
@@ -18,9 +18,10 @@ class Client(Base):
     city = Column(String(30))
     phone = Column(String(15))
 
+    user_id = Column(Integer, ForeignKey('users.id'), unique=True, nullable=True, default=None)
+    user = relationship("User", back_populates="client")
+
     Column('created_on', DateTime(), default=datetime.now)
     Column('updated_on', DateTime(), default=datetime.now, onupdate=datetime.now)
 
-    cars = relationship("Car", backref="clients.id")
-
-    # TODO: add relation to user (nullable)
+    cars = relationship("Car", backref="clients.id", cascade="all, delete")

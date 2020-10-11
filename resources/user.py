@@ -1,11 +1,10 @@
-from db import session
-
-from flask_restful import reqparse
+from flask_restful import Resource, fields
 from flask_restful import abort
-from flask_restful import Resource
-from flask_restful import fields
 from flask_restful import marshal_with
+from flask_restful import reqparse
 
+from classes.NestedWidthEmpty import NestedWithEmpty
+from db import session
 from models.user import User
 
 user_fields = {
@@ -13,6 +12,16 @@ user_fields = {
     'name': fields.String,
     'user_type': fields.Integer,
     'uri': fields.Url('user', absolute=True),
+    'client': NestedWithEmpty({
+        'id': fields.Integer,
+        'name': fields.String,
+        'surname': fields.String,
+        'address': fields.String,
+        'city': fields.String,
+        'phone': fields.String,
+        'user_id': fields.Integer,
+        'uri': fields.Url('client', absolute=True),
+    }, allow_null=True),
 }
 
 parser = reqparse.RequestParser()
