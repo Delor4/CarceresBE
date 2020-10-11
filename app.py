@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 import os
 
-from flask import Flask, send_file
-from flask_restful import Api
+from flask import send_file
 from flask_cors import CORS
+from flask_restful import Api
 
-app = Flask(__name__)
+from classes.config import flask_app
+
+app = flask_app
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 api = Api(app)
 

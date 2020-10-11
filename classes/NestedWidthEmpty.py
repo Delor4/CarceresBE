@@ -8,7 +8,6 @@ class NestedWithEmpty(Nested):
     """
 
     def __init__(self, nested, allow_empty=False, **kwargs):
-        print("fs")
         self.allow_empty = allow_empty
         super(NestedWithEmpty, self).__init__(nested, **kwargs)
 
