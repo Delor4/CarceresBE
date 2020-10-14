@@ -36,6 +36,11 @@ api.add_resource(PlaceResource, '/api/places/<string:id>', endpoint='place')
 api.add_resource(SubscriptionListResource, '/api/subscriptions', endpoint='subscriptions')
 api.add_resource(SubscriptionResource, '/api/subscriptions/<string:id>', endpoint='subscription')
 
+if app.debug:
+    from resources.seed import SeedResource
+if app.debug:
+    api.add_resource(SeedResource, '/api/seed', endpoint='seed')
+
 
 # Everything not declared before (not a Flask route / API endpoint)...
 @app.route("/<path:path>")
