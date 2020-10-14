@@ -20,6 +20,12 @@ cd app
 ```shell
 $ pip install -r requirements.txt
 ```
+- Config file:
+`settings.py` (default) or set env variable `CARCERES_CONFIG` eg:
+```shell
+$ CARCERES_CONFIG=/path/to/my_config.py
+$ export CARCERES_CONFIG
+```
 
 - Create tables:
 ```shell

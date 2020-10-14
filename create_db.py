@@ -2,10 +2,10 @@
 
 if __name__ == "__main__":
     from sqlalchemy import create_engine
-    from sqlalchemy.orm import relationship, backref, sessionmaker
-    from settings import DB_URI
-
+    from classes.config import flask_app
     import base
+
+    DB_URI = flask_app.config['SQLALCHEMY_DATABASE_URI']
 
     import models.user
     import models.client

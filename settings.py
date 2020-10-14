@@ -1,1 +1,2 @@
-DB_URI = 'sqlite:///./carceres.db'
+SQLALCHEMY_TRACK_MODIFICATIONS = True
+SQLALCHEMY_DATABASE_URI = 'sqlite:///./carceres.db'
