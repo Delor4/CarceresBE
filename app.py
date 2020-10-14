@@ -1,15 +1,25 @@
 #!/usr/bin/env python
 import os
 
-from flask import send_file
+from flask import send_file, Flask, jsonify
 from flask_cors import CORS
 from flask_restful import Api
 
-from classes.config import flask_app
+from classes.auth import auth, generate_auth_token
+from classes.config import config
 
-app = flask_app
+app = Flask(__name__)
+app.config.from_object(config)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 api = Api(app)
+
+
+@app.route('/api/login')
+@auth.login_required
+def get_auth_token():
+    token = generate_auth_token(auth.user.id)
+    return jsonify({'token': token.decode('ascii')})
+
 
 from resources.user import UserListResource, UserResource
 from resources.place import PlaceListResource, PlaceResource

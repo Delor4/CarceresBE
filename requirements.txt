@@ -4,3 +4,8 @@ sqlalchemy
 flask_cors
 flask_script
 flask_migrate
+flask_httpauth
+passlib
+
+itsdangerous
+alembic

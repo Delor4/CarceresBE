@@ -2,6 +2,7 @@ from flask_restful import Resource
 
 from db import session
 from models.place import Place
+from models.user import User
 from models.zone import Zone
 
 
@@ -145,9 +146,16 @@ def get_zone2():
 class SeedResource(Resource):
     def get(self):
         self.seed_places()
+        self.seed_users()
 
         session.commit()
         return {}, 200
+
+    def seed_users(self):
+        user = User(name='admin',
+                    user_type=1,
+                    password_hash='$6$rounds=656000$qvRag7CybnVI6t78$CZMIiqioeKKrrHOHt9nfHyVnqs2JK69gYPbjFMHt.lGvGw8BKliAlJCzc0WR1aGLlNM9bclSz5klaaUAbPUZh1')
+        session.add(user)
 
     def seed_places(self):
         for index, pos in enumerate(get_zone1()['places']):
