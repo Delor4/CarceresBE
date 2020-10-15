@@ -1,5 +1,6 @@
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 SQLALCHEMY_DATABASE_URI = 'sqlite:///./carceres.db'
+BUNDLE_ERRORS = True
 SECRET_KEY = 'Very secret string. Change this on production!!!'
 # in seconds
 # 600   = 10 minutes
