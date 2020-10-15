@@ -9,7 +9,6 @@ from classes.auth import access_required
 from db import session
 from models.client import Client
 from models.user import User
-from resources.car import car_fields
 
 client_fields = {
     'id': fields.Integer,
@@ -18,7 +17,12 @@ client_fields = {
     'address': fields.String,
     'city': fields.String,
     'phone': fields.String,
-    'cars': fields.Nested(car_fields),
+    'cars': fields.Nested({
+        'id': fields.Integer,
+        'plate': fields.String,
+        'client_id': fields.Integer,
+        'uri': fields.Url('car', absolute=True),
+    }),
     'user_id': fields.Integer,
     'user': NestedWithEmpty({
         'id': fields.Integer,

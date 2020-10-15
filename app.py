@@ -21,27 +21,32 @@ def get_auth_token():
     return jsonify({'token': token.decode('ascii')})
 
 
-from resources.user import UserListResource, UserResource
-from resources.place import PlaceListResource, PlaceResource
-from resources.zone import ZoneListResource, ZoneResource
-from resources.client import ClientListResource, ClientResource
-from resources.car import CarListResource, CarResource
-from resources.subscription import SubscriptionListResource, SubscriptionResource
+from resources.users import UserListResource, UserResource
 
 api.add_resource(UserListResource, '/api/users', endpoint='users')
 api.add_resource(UserResource, '/api/users/<string:id>', endpoint='user')
 
+from resources.clients import ClientListResource, ClientResource
+
 api.add_resource(ClientListResource, '/api/clients', endpoint='clients')
 api.add_resource(ClientResource, '/api/clients/<string:id>', endpoint='client')
+
+from resources.cars import CarListResource, CarResource
 
 api.add_resource(CarListResource, '/api/cars', endpoint='cars')
 api.add_resource(CarResource, '/api/cars/<string:id>', endpoint='car')
 
+from resources.zones import ZoneListResource, ZoneResource
+
 api.add_resource(ZoneListResource, '/api/zones', endpoint='zones')
 api.add_resource(ZoneResource, '/api/zones/<string:id>', endpoint='zone')
 
+from resources.places import PlaceListResource, PlaceResource
+
 api.add_resource(PlaceListResource, '/api/places', endpoint='places')
 api.add_resource(PlaceResource, '/api/places/<string:id>', endpoint='place')
+
+from resources.subscriptions import SubscriptionListResource, SubscriptionResource
 
 api.add_resource(SubscriptionListResource, '/api/subscriptions', endpoint='subscriptions')
 api.add_resource(SubscriptionResource, '/api/subscriptions/<string:id>', endpoint='subscription')

@@ -8,7 +8,7 @@ from flask_restful import fields
 from flask_restful import marshal_with
 
 from models.zone import Zone
-from resources.place import place_fields
+from resources.places import place_fields
 
 zone_fields = {
     'id': fields.Integer,
