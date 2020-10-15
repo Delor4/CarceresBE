@@ -12,7 +12,7 @@ class Client(Base):
     __tablename__ = 'clients'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(193), unique=True)
+    name = Column(String(193))
     surname = Column(String(193))
     address = Column(String(193))
     city = Column(String(30))

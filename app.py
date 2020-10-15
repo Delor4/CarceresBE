@@ -19,6 +19,11 @@ def login():
     return get_auth_token()
 
 
+from resources.manage import UserManageResource, ClientManageResource
+
+api.add_resource(UserManageResource, '/api/user', endpoint='user_manage')
+api.add_resource(ClientManageResource, '/api/client', endpoint='client_manage')
+
 from resources.users import UserListResource, UserResource
 
 api.add_resource(UserListResource, '/api/users', endpoint='users')
