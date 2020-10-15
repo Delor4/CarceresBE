@@ -154,7 +154,18 @@ class SeedResource(Resource):
     def seed_users(self):
         user = User(name='admin',
                     user_type=1,
-                    password_hash='$6$rounds=656000$qvRag7CybnVI6t78$CZMIiqioeKKrrHOHt9nfHyVnqs2JK69gYPbjFMHt.lGvGw8BKliAlJCzc0WR1aGLlNM9bclSz5klaaUAbPUZh1')
+                    password_hash='$6$rounds=656000$qvRag7CybnVI6t78$CZMIiqioeKKrrHOHt9nfHyVnqs2JK69gYPbjFMHt.lGvGw8BKliAlJCzc0WR1aGLlNM9bclSz5klaaUAbPUZh1',
+                    )
+        session.add(user)
+        user = User(name='stroz',
+                    user_type=2,
+                    password_hash="$6$rounds=656000$whFc0DVCMM6peC4x$bvgxj5eShNGWkI2e8E.hTXe2TOfiSBCgaIWfJCrEOD17uI7XPzkiqcvf.BX2/yhWfEwCHRlTzT3gITShKwA8a/",
+                    )
+        session.add(user)
+        user = User(name='klient',
+                    user_type=3,
+                    password_hash="$6$rounds=656000$36qujjj0IHhRm3s3$rP.NkdJslEaSDDZ0zrNyOQDnLpjZ.VK04YSQ7G7o1iuiIk2EQRvRWU/dfCY0Nd.bX4z5iuv8yiMCT1YkOW7UD0",
+                    )
         session.add(user)
 
     def seed_places(self):

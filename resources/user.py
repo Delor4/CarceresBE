@@ -4,7 +4,7 @@ from flask_restful import marshal_with
 from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
-from classes.auth import token_required, auth
+from classes.auth import token_required, access_required
 from db import session
 from models.user import User
 
@@ -36,8 +36,6 @@ class UserResource(Resource):
     @token_required
     @marshal_with(user_fields)
     def get(self, id):
-        print(auth.user)
-        print(auth.user.name)
         user = session.query(User).filter(User.id == id).first()
         if not user:
             abort(404, message="User {} doesn't exist".format(id))

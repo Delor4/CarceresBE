@@ -1,7 +1,8 @@
-from functools import wraps
+from functools import wraps, update_wrapper
 
-from flask import request, jsonify
+from flask import request
 from flask_httpauth import HTTPBasicAuth
+from flask_restful import abort
 from itsdangerous import SignatureExpired, BadSignature, TimedJSONWebSignatureSerializer as Serializer
 
 from classes.config import config
@@ -28,26 +29,38 @@ def generate_auth_token(user_id, expiration=config['SECRET_KEY_EXPIRATION']):
 def token_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
-
         token = None
 
         if 'x-access-tokens' in request.headers:
             token = request.headers['x-access-tokens']
 
         if not token:
-            return jsonify({'message': 'a valid token is missing'})
+            abort(401, message="a valid token is missing")
 
         try:
             s = Serializer(config['SECRET_KEY'])
             data = s.loads(token)
         except SignatureExpired:
-            return jsonify({'message': 'token expired'})
+            abort(401, message="token expired")
         except BadSignature:
-            return jsonify({'message': 'token is invalid'})
+            abort(401, message="token is invalid")
 
         current_user = session.query(User).filter(User.id == data['id']).first()
         auth.user = current_user
 
         return f(*args, **kwargs)
+
+    return decorator
+
+
+def access_required(min_access_rights):
+    def decorator(fn):
+        @token_required
+        def wrapped_function(*args, **kwargs):
+            if auth.user.user_type > min_access_rights:
+                abort(403, message="insufficient access rights")
+            return fn(*args, **kwargs)
+
+        return update_wrapper(wrapped_function, fn)
 
     return decorator
