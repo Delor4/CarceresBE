@@ -33,7 +33,7 @@ parser.add_argument('password', type=str, required=True, nullable=False)
 
 
 class UserResource(Resource):
-    @token_required
+    @access_required(2)
     @marshal_with(user_fields)
     def get(self, id):
         user = session.query(User).filter(User.id == id).first()
@@ -41,7 +41,7 @@ class UserResource(Resource):
             abort(404, message="User {} doesn't exist".format(id))
         return user
 
-    @token_required
+    @access_required(1)
     def delete(self, id):
         user = session.query(User).filter(User.id == id).first()
         if not user:
@@ -50,7 +50,7 @@ class UserResource(Resource):
         session.commit()
         return {}, 204
 
-    @token_required
+    @access_required(1)
     @marshal_with(user_fields)
     def put(self, id):
         parsed_args = parser.parse_args()
@@ -70,7 +70,7 @@ class UserListResource(Resource):
         users = session.query(User).all()
         return users
 
-    @token_required
+    @access_required(1)
     @marshal_with(user_fields)
     def post(self):
         parsed_args = parser.parse_args()

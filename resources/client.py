@@ -5,6 +5,7 @@ from flask_restful import marshal_with
 from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
+from classes.auth import access_required
 from db import session
 from models.client import Client
 from models.user import User
@@ -38,6 +39,7 @@ parser.add_argument('user_id', type=int, required=False, nullable=True)
 
 
 class ClientResource(Resource):
+    @access_required(2)
     @marshal_with(client_fields)
     def get(self, id):
         client = session.query(Client).filter(Client.id == id).first()
@@ -45,6 +47,7 @@ class ClientResource(Resource):
             abort(404, message="Client {} doesn't exist".format(id))
         return client
 
+    @access_required(2)
     def delete(self, id):
         client = session.query(Client).filter(Client.id == id).first()
         if not client:
@@ -53,6 +56,7 @@ class ClientResource(Resource):
         session.commit()
         return {}, 204
 
+    @access_required(2)
     @marshal_with(client_fields)
     def put(self, id):
         parsed_args = parser.parse_args()
@@ -73,11 +77,13 @@ class ClientResource(Resource):
 
 
 class ClientListResource(Resource):
+    @access_required(2)
     @marshal_with(client_fields)
     def get(self):
         clients = session.query(Client).all()
         return clients
 
+    @access_required(2)
     @marshal_with(client_fields)
     def post(self):
         parsed_args = parser.parse_args()

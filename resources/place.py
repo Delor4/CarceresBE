@@ -1,3 +1,4 @@
+from classes.auth import access_required
 from db import session
 
 from flask_restful import reqparse
@@ -28,6 +29,7 @@ parser.add_argument('pos_y', type=float, required=False, nullable=True)
 
 
 class PlaceResource(Resource):
+    @access_required(3)
     @marshal_with(place_fields)
     def get(self, id):
         place = session.query(Place).filter(Place.id == id).first()
@@ -35,6 +37,7 @@ class PlaceResource(Resource):
             abort(404, message="Place {} doesn't exist".format(id))
         return place
 
+    @access_required(1)
     def delete(self, id):
         place = session.query(Place).filter(Place.id == id).first()
         if not place:
@@ -43,6 +46,7 @@ class PlaceResource(Resource):
         session.commit()
         return {}, 204
 
+    @access_required(1)
     @marshal_with(place_fields)
     def put(self, id):
         parsed_args = parser.parse_args()
@@ -60,11 +64,13 @@ class PlaceResource(Resource):
 
 
 class PlaceListResource(Resource):
+    @access_required(3)
     @marshal_with(place_fields)
     def get(self):
         places = session.query(Place).all()
         return places
 
+    @access_required(1)
     @marshal_with(place_fields)
     def post(self):
         parsed_args = parser.parse_args()
