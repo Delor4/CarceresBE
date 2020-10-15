@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 import os
 
-from flask import send_file, Flask, jsonify
+from flask import send_file, Flask
 from flask_cors import CORS
 from flask_restful import Api
 
-from classes.auth import auth, generate_auth_token
+from classes.auth import get_auth_token
 from classes.config import config
 
 app = Flask(__name__)
@@ -15,10 +15,8 @@ api = Api(app)
 
 
 @app.route('/api/login')
-@auth.login_required
-def get_auth_token():
-    token = generate_auth_token(auth.user.id)
-    return jsonify({'token': token.decode('ascii')})
+def login():
+    return get_auth_token()
 
 
 from resources.users import UserListResource, UserResource

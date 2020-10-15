@@ -1,6 +1,6 @@
 from functools import wraps, update_wrapper
 
-from flask import request
+from flask import request, jsonify
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import abort
 from itsdangerous import SignatureExpired, BadSignature, TimedJSONWebSignatureSerializer as Serializer
@@ -24,6 +24,12 @@ def verify_password(username, password):
 def generate_auth_token(user_id, expiration=config['SECRET_KEY_EXPIRATION']):
     s = Serializer(config['SECRET_KEY'], expires_in=expiration)
     return s.dumps({'id': user_id})
+
+
+@auth.login_required
+def get_auth_token():
+    token = generate_auth_token(auth.user.id)
+    return jsonify({'token': token.decode('ascii')})
 
 
 def token_required(f):
