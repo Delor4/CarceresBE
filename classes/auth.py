@@ -1,4 +1,5 @@
 from functools import wraps, update_wrapper
+from datetime import datetime, timedelta
 
 from flask import request, jsonify
 from flask_httpauth import HTTPBasicAuth
@@ -15,9 +16,24 @@ auth = HTTPBasicAuth()
 @auth.verify_password
 def verify_password(username, password):
     user = session.query(User).filter(User.name == username).first()
-    if not user or not user.verify_password(password):
+    # Time blockade
+    if not user or (user.blocked_since is not None and user.blocked_since > datetime.now()):
+        return False
+    # Check pass
+    if not user.verify_password(password):
+        user.failed_logins = user.failed_logins + 1
+        # Check failed logins
+        if(user.failed_logins >= config['AUTOBLOCKADE_ATTEMPTS']):
+            user.blocked_since = datetime.now() + timedelta(minutes = config['AUTOBLOCKADE_TIME'])
+            user.failed_logins = 0
+            # TODO: send msg to logging system
+        session.add(user)
+        session.commit()
         return False
     auth.user = user
+    user.failed_logins = 0
+    session.add(user)
+    session.commit()
     return True
 
 

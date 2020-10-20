@@ -9,7 +9,7 @@ from classes.auth import get_auth_token
 from classes.config import config
 
 app = Flask(__name__)
-app.config.from_object(config)
+app.config.from_mapping(config)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 api = Api(app)
 
@@ -56,7 +56,6 @@ api.add_resource(SubscriptionResource, '/api/subscriptions/<string:id>', endpoin
 
 if app.debug:
     from resources.seed import SeedResource
-if app.debug:
     api.add_resource(SeedResource, '/api/seed', endpoint='seed')
 
 

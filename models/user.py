@@ -16,6 +16,8 @@ class User(Base):
     name = Column(String(193), unique=True)
     user_type = Column(Integer)
     password_hash = Column(String(128))
+    failed_logins = Column(Integer, default=0, nullable=False)
+    blocked_since = Column(DateTime, nullable=True)
 
     client = relationship("Client", uselist=False, back_populates="user")
 
