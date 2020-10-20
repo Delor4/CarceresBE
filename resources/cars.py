@@ -1,4 +1,4 @@
-from classes.auth import access_required
+from classes.auth import access_required, Rights
 from db import session
 
 from flask_restful import reqparse
@@ -23,7 +23,7 @@ parser.add_argument('client_id', type=int, required=True, nullable=False)
 
 
 class CarResource(Resource):
-    @access_required(2)
+    @access_required(Rights.MOD)
     @marshal_with(car_fields)
     def get(self, id):
         car = session.query(Car).filter(Car.id == id).first()
@@ -31,7 +31,7 @@ class CarResource(Resource):
             abort(404, message="Car {} doesn't exist".format(id))
         return car
 
-    @access_required(2)
+    @access_required(Rights.MOD)
     def delete(self, id):
         car = session.query(Car).filter(Car.id == id).first()
         if not car:
@@ -40,7 +40,7 @@ class CarResource(Resource):
         session.commit()
         return {}, 204
 
-    @access_required(2)
+    @access_required(Rights.MOD)
     @marshal_with(car_fields)
     def put(self, id):
         parsed_args = parser.parse_args()
@@ -55,13 +55,13 @@ class CarResource(Resource):
 
 
 class CarListResource(Resource):
-    @access_required(2)
+    @access_required(Rights.MOD)
     @marshal_with(car_fields)
     def get(self):
         cars = session.query(Car).all()
         return cars
 
-    @access_required(2)
+    @access_required(Rights.MOD)
     @marshal_with(car_fields)
     def post(self):
         parsed_args = parser.parse_args()

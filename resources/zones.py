@@ -1,4 +1,4 @@
-from classes.auth import access_required
+from classes.auth import access_required, Rights
 from db import session
 
 from flask_restful import reqparse
@@ -24,7 +24,7 @@ parser.add_argument('bkg_file', type=str)
 
 
 class ZoneResource(Resource):
-    @access_required(3)
+    @access_required(Rights.USER)
     @marshal_with(zone_fields)
     def get(self, id):
         zone = session.query(Zone).filter(Zone.id == id).first()
@@ -32,7 +32,7 @@ class ZoneResource(Resource):
             abort(404, message="Zone {} doesn't exist".format(id))
         return zone
 
-    @access_required(1)
+    @access_required(Rights.ADMIN)
     def delete(self, id):
         zone = session.query(Zone).filter(Zone.id == id).first()
         if not zone:
@@ -41,7 +41,7 @@ class ZoneResource(Resource):
         session.commit()
         return {}, 204
 
-    @access_required(1)
+    @access_required(Rights.ADMIN)
     @marshal_with(zone_fields)
     def put(self, id):
         parsed_args = parser.parse_args()
@@ -54,13 +54,13 @@ class ZoneResource(Resource):
 
 
 class ZoneListResource(Resource):
-    @access_required(3)
+    @access_required(Rights.USER)
     @marshal_with(zone_fields)
     def get(self):
         zones = session.query(Zone).all()
         return zones
 
-    @access_required(1)
+    @access_required(Rights.ADMIN)
     @marshal_with(zone_fields)
     def post(self):
         parsed_args = parser.parse_args()

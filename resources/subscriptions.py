@@ -1,4 +1,4 @@
-from classes.auth import access_required
+from classes.auth import access_required, Rights
 from db import session
 
 from flask_restful import reqparse, inputs
@@ -29,7 +29,7 @@ parser.add_argument('car_id', type=int, required=True, nullable=False)
 
 
 class SubscriptionResource(Resource):
-    @access_required(2)
+    @access_required(Rights.MOD)
     @marshal_with(subscription_fields)
     def get(self, id):
         subscription = session.query(Subscription).filter(Subscription.id == id).first()
@@ -37,7 +37,7 @@ class SubscriptionResource(Resource):
             abort(404, message="Subscription {} doesn't exist".format(id))
         return subscription
 
-    @access_required(2)
+    @access_required(Rights.MOD)
     def delete(self, id):
         subscription = session.query(Subscription).filter(Subscription.id == id).first()
         if not subscription:
@@ -46,7 +46,7 @@ class SubscriptionResource(Resource):
         session.commit()
         return {}, 204
 
-    @access_required(2)
+    @access_required(Rights.MOD)
     @marshal_with(subscription_fields)
     def put(self, id):
         parsed_args = parser.parse_args()
@@ -62,13 +62,13 @@ class SubscriptionResource(Resource):
 
 
 class SubscriptionListResource(Resource):
-    @access_required(2)
+    @access_required(Rights.MOD)
     @marshal_with(subscription_fields)
     def get(self):
         subscriptions = session.query(Subscription).all()
         return subscriptions
 
-    @access_required(2)
+    @access_required(Rights.MOD)
     @marshal_with(subscription_fields)
     def post(self):
         parsed_args = parser.parse_args()

@@ -74,6 +74,11 @@ def token_required(f):
 
     return decorator
 
+class Rights:
+    ADMIN = 1
+    MOD = 2
+    USER = 3
+    BOT = 4
 
 def access_required(min_access_rights):
     def decorator(fn):
