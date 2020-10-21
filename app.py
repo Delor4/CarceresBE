@@ -5,7 +5,7 @@ from flask import send_file, Flask
 from flask_cors import CORS
 from flask_restful import Api
 
-from classes.auth import get_auth_token
+from classes.auth import get_auth_token, refresh_token
 from classes.config import config
 
 app = Flask(__name__)
@@ -17,6 +17,11 @@ api = Api(app)
 @app.route('/api/login')
 def login():
     return get_auth_token()
+
+
+@app.route('/api/refresh', methods=['POST'])
+def refresh():
+    return refresh_token()
 
 
 from resources.manage import UserManageResource, ClientManageResource
@@ -56,6 +61,7 @@ api.add_resource(SubscriptionResource, '/api/subscriptions/<string:id>', endpoin
 
 if app.debug:
     from resources.seed import SeedResource
+
     api.add_resource(SeedResource, '/api/seed', endpoint='seed')
 
 

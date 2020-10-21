@@ -23,8 +23,8 @@ def verify_password(username, password):
     if not user.verify_password(password):
         user.failed_logins = user.failed_logins + 1
         # Check failed logins
-        if(user.failed_logins >= config['AUTOBLOCKADE_ATTEMPTS']):
-            user.blocked_since = datetime.now() + timedelta(minutes = config['AUTOBLOCKADE_TIME'])
+        if user.failed_logins >= config['AUTOBLOCKADE_ATTEMPTS']:
+            user.blocked_since = datetime.now() + timedelta(minutes=config['AUTOBLOCKADE_TIME'])
             user.failed_logins = 0
             # TODO: send msg to logging system
         session.add(user)
@@ -37,15 +37,58 @@ def verify_password(username, password):
     return True
 
 
-def generate_auth_token(user_id, expiration=config['SECRET_KEY_EXPIRATION']):
+def generate_auth_token(user_id, expiration=config['SECRET_ACCESS_KEY_EXPIRATION']):
     s = Serializer(config['SECRET_KEY'], expires_in=expiration)
-    return s.dumps({'id': user_id})
+    return s.dumps({'id': user_id,
+                    'grand_type': 'access'
+                    })
+
+
+def generate_refresh_token(user_id, expiration=config['SECRET_REFRESH_KEY_EXPIRATION']):
+    s = Serializer(config['SECRET_KEY'], expires_in=expiration)
+    return s.dumps({'id': user_id,
+                    'grand_type': 'refresh'
+                    })
+
+
+def refresh_token():
+    json = request.get_json()
+    token = json['refresh_token']
+    data = _check_token(token, 'refresh')
+    current_user = session.query(User).filter(User.id == data['id']).first()
+    auth.user = current_user
+
+#    return jsonify({'msg': 'ok'})
+    return _new_auth_token(auth.user.id)
+
+
+def _new_auth_token(user_id):
+    a_token = generate_auth_token(user_id)
+    r_token = generate_refresh_token(user_id)
+    return jsonify({'access_token': a_token.decode('ascii'),
+                    'refresh_token': r_token.decode('ascii')
+                    })
 
 
 @auth.login_required
 def get_auth_token():
-    token = generate_auth_token(auth.user.id)
-    return jsonify({'token': token.decode('ascii')})
+    return _new_auth_token(auth.user.id)
+
+
+def _check_token(token, grand_type='access'):
+    if not token:
+        abort(401, message="a valid token is missing")
+    try:
+        s = Serializer(config['SECRET_KEY'])
+        data = s.loads(token)
+    except SignatureExpired:
+        abort(401, message="token expired")
+    except BadSignature:
+        abort(401, message="token is invalid")
+    if not data['grand_type'] or data['grand_type'] != grand_type:
+        abort(401, message='an {} token is missing'.format(grand_type))
+
+    return data
 
 
 def token_required(f):
@@ -56,16 +99,7 @@ def token_required(f):
         if 'x-access-tokens' in request.headers:
             token = request.headers['x-access-tokens']
 
-        if not token:
-            abort(401, message="a valid token is missing")
-
-        try:
-            s = Serializer(config['SECRET_KEY'])
-            data = s.loads(token)
-        except SignatureExpired:
-            abort(401, message="token expired")
-        except BadSignature:
-            abort(401, message="token is invalid")
+        data = _check_token(token)
 
         current_user = session.query(User).filter(User.id == data['id']).first()
         auth.user = current_user
@@ -74,11 +108,13 @@ def token_required(f):
 
     return decorator
 
+
 class Rights:
     ADMIN = 1
     MOD = 2
     USER = 3
     BOT = 4
+
 
 def access_required(min_access_rights):
     def decorator(fn):
