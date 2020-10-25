@@ -31,12 +31,14 @@ def get_paginated_list(model_class, resource_fields, resource_url, start, limit)
         return obj
     if start < 1 or count < start:
         abort(404, message=f"Pagination start outside allowed values. Expected: 1 - {count}. Provided: {start}")
+    if limit < 1:
+        abort(404, message=f"Pagination limit outside allowed values. Expected more than 0. Provided: {limit}")
 
     # make URLs
     # make previous url
     if start != 1:
         start_copy = max(1, start - limit)
-        limit_copy = start - 1
+        limit_copy = min(limit, start - 1)
         obj['previous'] = resource_url + '?start=%d&limit=%d' % (start_copy, limit_copy)
     # make next url
     if start + limit <= count:
