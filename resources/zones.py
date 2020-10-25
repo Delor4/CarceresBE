@@ -24,9 +24,15 @@ parser.add_argument('bkg_file', type=str)
 
 
 class ZoneResource(Resource):
+    """
+    Resources for 'zone' (/api/zones/<id>) endpoint.
+    """
     @access_required(Rights.USER)
     @marshal_with(zone_fields)
     def get(self, id):
+        """
+        Returns zone's data.
+        """
         zone = session.query(Zone).filter(Zone.id == id).first()
         if not zone:
             abort(404, message="Zone {} doesn't exist".format(id))
@@ -34,6 +40,9 @@ class ZoneResource(Resource):
 
     @access_required(Rights.ADMIN)
     def delete(self, id):
+        """
+        Delete zone from database.
+        """
         zone = session.query(Zone).filter(Zone.id == id).first()
         if not zone:
             abort(404, message="Zone {} doesn't exist".format(id))
@@ -44,6 +53,9 @@ class ZoneResource(Resource):
     @access_required(Rights.ADMIN)
     @marshal_with(zone_fields)
     def put(self, id):
+        """
+        Update zone's data.
+        """
         parsed_args = parser.parse_args()
         zone = session.query(Zone).filter(Zone.id == id).first()
         zone.name = parsed_args['name']
@@ -54,15 +66,24 @@ class ZoneResource(Resource):
 
 
 class ZoneListResource(Resource):
+    """
+    Resources for 'zones' (/api/zones) endpoint.
+    """
     @access_required(Rights.USER)
     @marshal_with(zone_fields)
     def get(self):
+        """
+        Returns data of all zones.
+        """
         zones = session.query(Zone).all()
         return zones
 
     @access_required(Rights.ADMIN)
     @marshal_with(zone_fields)
     def post(self):
+        """
+        Create new zone.
+        """
         parsed_args = parser.parse_args()
         zone = Zone(name=parsed_args['name'], bkg_file=parsed_args['bkg_file'])
         session.add(zone)

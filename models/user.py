@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from datetime import datetime
 
 from passlib.apps import custom_app_context as pwd_context
@@ -25,7 +24,13 @@ class User(Base):
     Column('updated_on', DateTime(), default=datetime.now, onupdate=datetime.now)
 
     def hash_password(self, password):
+        """
+        Hash given password.
+        """
         self.password_hash = pwd_context.encrypt(password)
 
     def verify_password(self, password):
+        """
+        Check if user's hashed password and given password match.
+        """
         return pwd_context.verify(password, self.password_hash)

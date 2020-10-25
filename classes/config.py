@@ -3,9 +3,12 @@ import os
 from flask import Config
 
 
-def set_default(conf, field, val):
-    if not conf[field] or conf[field] is None:
-        conf[field] = val
+def set_default(cfg, field, val):
+    """
+    Set default value to field if not present in config.
+    """
+    if not cfg[field] or cfg[field] is None:
+        cfg[field] = val
 
 
 config = Config('./')

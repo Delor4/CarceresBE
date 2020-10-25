@@ -29,9 +29,15 @@ parser.add_argument('pos_y', type=float, required=False, nullable=True)
 
 
 class PlaceResource(Resource):
+    """
+    Resources for 'place' (/api/places/<id>) endpoint.
+    """
     @access_required(Rights.USER)
     @marshal_with(place_fields)
     def get(self, id):
+        """
+        Returns place's data.
+        """
         place = session.query(Place).filter(Place.id == id).first()
         if not place:
             abort(404, message="Place {} doesn't exist".format(id))
@@ -39,6 +45,9 @@ class PlaceResource(Resource):
 
     @access_required(Rights.ADMIN)
     def delete(self, id):
+        """
+        Delete place from database.
+        """
         place = session.query(Place).filter(Place.id == id).first()
         if not place:
             abort(404, message="Place {} doesn't exist".format(id))
@@ -49,6 +58,9 @@ class PlaceResource(Resource):
     @access_required(Rights.ADMIN)
     @marshal_with(place_fields)
     def put(self, id):
+        """
+        Update place's data.
+        """
         parsed_args = parser.parse_args()
         place = session.query(Place).filter(Place.id == id).first()
         place.nr = parsed_args['nr']
@@ -64,15 +76,24 @@ class PlaceResource(Resource):
 
 
 class PlaceListResource(Resource):
+    """
+    Resources for 'places' (/api/places/<id>) endpoint.
+    """
     @access_required(Rights.USER)
     @marshal_with(place_fields)
     def get(self):
+        """
+        Returns data of all places.
+        """
         places = session.query(Place).all()
         return places
 
     @access_required(Rights.ADMIN)
     @marshal_with(place_fields)
     def post(self):
+        """
+        Create new place.
+        """
         parsed_args = parser.parse_args()
         place = Place(nr=parsed_args['nr'], zone_id=parsed_args['zone_id'], name=parsed_args['name'],
                       pos_x=parsed_args['pos_x'], pos_y=parsed_args['pos_y'])

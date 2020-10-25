@@ -1,4 +1,3 @@
-# !/usr/bin/env python
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, ForeignKey

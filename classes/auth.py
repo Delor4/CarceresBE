@@ -14,7 +14,12 @@ auth = HTTPBasicAuth()
 
 
 @auth.verify_password
-def verify_password(username, password):
+def verify_password(username: str, password: str) -> bool:
+    """
+    Authentication (basic auth).
+    Check if username and password match. If the number of failed checks exceeds the limit, verification is
+    temporarily prohibited.
+    """
     user = session.query(User).filter(User.name == username).first()
     # Time blockade
     if not user or (user.blocked_since is not None and user.blocked_since > datetime.now()):
@@ -37,32 +42,52 @@ def verify_password(username, password):
     return True
 
 
-def generate_auth_token(user_id, expiration=config['SECRET_ACCESS_KEY_EXPIRATION']):
-    s = Serializer(config['SECRET_KEY'], expires_in=expiration)
-    return s.dumps({'id': user_id,
-                    'grand_type': 'access'
-                    })
-
-
-def generate_refresh_token(user_id, expiration=config['SECRET_REFRESH_KEY_EXPIRATION']):
-    s = Serializer(config['SECRET_KEY'], expires_in=expiration)
-    return s.dumps({'id': user_id,
-                    'grand_type': 'refresh'
-                    })
+@auth.login_required
+def get_auth_tokens():
+    """
+    Returns new pair of tokens for authenticated user.
+    """
+    return _new_auth_tokens(auth.user.id)
 
 
 def refresh_token():
+    """
+    Check request's refresh token and return new pair of tokens.
+    """
     json = request.get_json()
     token = json['refresh_token']
     data = _check_token(token, 'refresh')
     current_user = session.query(User).filter(User.id == data['id']).first()
     auth.user = current_user
 
-#    return jsonify({'msg': 'ok'})
-    return _new_auth_token(auth.user.id)
+    # return jsonify({'msg': 'ok'})
+    return _new_auth_tokens(auth.user.id)
 
 
-def _new_auth_token(user_id):
+def generate_auth_token(user_id: int, expiration: int = config['SECRET_ACCESS_KEY_EXPIRATION']):
+    """
+    Return access token for given user id and expiration time.
+    """
+    s = Serializer(config['SECRET_KEY'], expires_in=expiration)
+    return s.dumps({'id': user_id,
+                    'grand_type': 'access'
+                    })
+
+
+def generate_refresh_token(user_id: int, expiration: int = config['SECRET_REFRESH_KEY_EXPIRATION']):
+    """
+    Return refresh token for given user id and expiration time.
+    """
+    s = Serializer(config['SECRET_KEY'], expires_in=expiration)
+    return s.dumps({'id': user_id,
+                    'grand_type': 'refresh'
+                    })
+
+
+def _new_auth_tokens(user_id: int):
+    """
+    Return json with new pair of access and refresh tokens for selected user id.
+    """
     a_token = generate_auth_token(user_id)
     r_token = generate_refresh_token(user_id)
     return jsonify({'access_token': a_token.decode('ascii'),
@@ -70,12 +95,11 @@ def _new_auth_token(user_id):
                     })
 
 
-@auth.login_required
-def get_auth_token():
-    return _new_auth_token(auth.user.id)
-
-
 def _check_token(token, grand_type='access'):
+    """
+    Check and return data associated with this token.
+    On error returns status code with msg.
+    """
     if not token:
         abort(401, message="a valid token is missing")
     try:
@@ -91,7 +115,13 @@ def _check_token(token, grand_type='access'):
     return data
 
 
+# Decorators
+
 def token_required(f):
+    """
+    Decorator. Checks token provided in 'x-access-tokens' header field.
+    """
+
     @wraps(f)
     def decorator(*args, **kwargs):
         token = None
@@ -117,6 +147,10 @@ class Rights:
 
 
 def access_required(min_access_rights):
+    """
+    Decorator. Checks whether the user has access rights to the resource.
+    """
+
     def decorator(fn):
         @token_required
         def wrapped_function(*args, **kwargs):

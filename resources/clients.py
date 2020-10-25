@@ -43,9 +43,15 @@ parser.add_argument('user_id', type=int, required=False, nullable=True)
 
 
 class ClientResource(Resource):
+    """
+    Resources for 'client' (/api/clients/<id>) endpoint.
+    """
     @access_required(Rights.MOD)
     @marshal_with(client_fields)
     def get(self, id):
+        """
+        Returns client's data.
+        """
         client = session.query(Client).filter(Client.id == id).first()
         if not client:
             abort(404, message="Client {} doesn't exist".format(id))
@@ -53,6 +59,9 @@ class ClientResource(Resource):
 
     @access_required(Rights.MOD)
     def delete(self, id):
+        """
+        Delete client from database.
+        """
         client = session.query(Client).filter(Client.id == id).first()
         if not client:
             abort(404, message="Client {} doesn't exist".format(id))
@@ -63,6 +72,9 @@ class ClientResource(Resource):
     @access_required(Rights.MOD)
     @marshal_with(client_fields)
     def put(self, id):
+        """
+        Update client's data.
+        """
         parsed_args = parser.parse_args()
         client = session.query(Client).filter(Client.id == id).first()
         client.name = parsed_args['name']
@@ -81,15 +93,24 @@ class ClientResource(Resource):
 
 
 class ClientListResource(Resource):
+    """
+    Resources for 'clients' (/api/clients/<id>) endpoint.
+    """
     @access_required(Rights.MOD)
     @marshal_with(client_fields)
     def get(self):
+        """
+        Returns data of all clients.
+        """
         clients = session.query(Client).all()
         return clients
 
     @access_required(Rights.MOD)
     @marshal_with(client_fields)
     def post(self):
+        """
+        Create new client.
+        """
         parsed_args = parser.parse_args()
         client = Client(name=parsed_args['name'],
                         surname=parsed_args['surname'],

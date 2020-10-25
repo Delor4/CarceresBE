@@ -33,9 +33,15 @@ parser.add_argument('password', type=str, required=True, nullable=False)
 
 
 class UserResource(Resource):
+    """
+    Resources for 'user' (/api/users/<id>) endpoint.
+    """
     @access_required(Rights.MOD)
     @marshal_with(user_fields)
     def get(self, id):
+        """
+        Returns user's data.
+        """
         user = session.query(User).filter(User.id == id).first()
         if not user:
             abort(404, message="User {} doesn't exist".format(id))
@@ -43,6 +49,9 @@ class UserResource(Resource):
 
     @access_required(Rights.ADMIN)
     def delete(self, id):
+        """
+        Delete user from database.
+        """
         user = session.query(User).filter(User.id == id).first()
         if not user:
             abort(404, message="User {} doesn't exist".format(id))
@@ -53,6 +62,9 @@ class UserResource(Resource):
     @access_required(Rights.ADMIN)
     @marshal_with(user_fields)
     def put(self, id):
+        """
+        Update user's data.
+        """
         parsed_args = parser.parse_args()
         user = session.query(User).filter(User.id == id).first()
         user.name = parsed_args['name']
@@ -64,15 +76,24 @@ class UserResource(Resource):
 
 
 class UserListResource(Resource):
+    """
+    Resources for 'users' (/api/users) endpoint.
+    """
     @token_required
     @marshal_with(user_fields)
     def get(self):
+        """
+        Returns data of all users.
+        """
         users = session.query(User).all()
         return users
 
     @access_required(Rights.ADMIN)
     @marshal_with(user_fields)
     def post(self):
+        """
+        Create new user.
+        """
         parsed_args = parser.parse_args()
         user = User(name=parsed_args['name'], user_type=parsed_args['user_type'], )
         user.hash_password(parsed_args['password'])

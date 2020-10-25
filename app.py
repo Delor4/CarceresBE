@@ -5,7 +5,7 @@ from flask import send_file, Flask
 from flask_cors import CORS
 from flask_restful import Api
 
-from classes.auth import get_auth_token, refresh_token
+from classes.auth import get_auth_tokens, refresh_token
 from classes.config import config
 
 app = Flask(__name__)
@@ -16,11 +16,17 @@ api = Api(app)
 
 @app.route('/api/login')
 def login():
-    return get_auth_token()
+    """
+    Authenticate (basic auth) and returns pair of access/refresh tokens.
+    """
+    return get_auth_tokens()
 
 
 @app.route('/api/refresh', methods=['POST'])
 def refresh():
+    """
+    Authenticate (refresh token) and returns new pair of access/refresh tokens.
+    """
     return refresh_token()
 
 
@@ -68,6 +74,9 @@ if app.debug:
 # Everything not declared before (not a Flask route / API endpoint)...
 @app.route("/<path:path>")
 def route_frontend(path):
+    """
+    Returns frontend file if path is not backends.
+    """
     # ...could be a static file needed by the front end that
     # doesn't use the `static` path (like in `<script src="bundle.js">`)
     file_path = os.path.join(app.static_folder, path)

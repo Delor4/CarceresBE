@@ -23,9 +23,15 @@ parser.add_argument('client_id', type=int, required=True, nullable=False)
 
 
 class CarResource(Resource):
+    """
+    Resources for 'car' (/api/cars/<id>) endpoint.
+    """
     @access_required(Rights.MOD)
     @marshal_with(car_fields)
     def get(self, id):
+        """
+        Returns car's data.
+        """
         car = session.query(Car).filter(Car.id == id).first()
         if not car:
             abort(404, message="Car {} doesn't exist".format(id))
@@ -33,6 +39,9 @@ class CarResource(Resource):
 
     @access_required(Rights.MOD)
     def delete(self, id):
+        """
+        Delete car from database.
+        """
         car = session.query(Car).filter(Car.id == id).first()
         if not car:
             abort(404, message="Car {} doesn't exist".format(id))
@@ -43,6 +52,9 @@ class CarResource(Resource):
     @access_required(Rights.MOD)
     @marshal_with(car_fields)
     def put(self, id):
+        """
+        Update car's data.
+        """
         parsed_args = parser.parse_args()
         car = session.query(Car).filter(Car.id == id).first()
         car.plate = parsed_args['plate']
@@ -55,15 +67,24 @@ class CarResource(Resource):
 
 
 class CarListResource(Resource):
+    """
+    Resources for 'cars' (/api/cars) endpoint.
+    """
     @access_required(Rights.MOD)
     @marshal_with(car_fields)
     def get(self):
+        """
+        Returns data of all cars.
+        """
         cars = session.query(Car).all()
         return cars
 
     @access_required(Rights.MOD)
     @marshal_with(car_fields)
     def post(self):
+        """
+        Create new car.
+        """
         parsed_args = parser.parse_args()
         car = Car(plate=parsed_args['plate'], client_id=parsed_args['client_id'])
         client = session.query(Client).filter(Client.id == parsed_args['client_id']).first()

@@ -29,9 +29,15 @@ parser.add_argument('car_id', type=int, required=True, nullable=False)
 
 
 class SubscriptionResource(Resource):
+    """
+    Resources for 'subscription' (/api/subscriptions/<id>) endpoint.
+    """
     @access_required(Rights.MOD)
     @marshal_with(subscription_fields)
     def get(self, id):
+        """
+        Returns subscription's data.
+        """
         subscription = session.query(Subscription).filter(Subscription.id == id).first()
         if not subscription:
             abort(404, message="Subscription {} doesn't exist".format(id))
@@ -39,6 +45,9 @@ class SubscriptionResource(Resource):
 
     @access_required(Rights.MOD)
     def delete(self, id):
+        """
+        Delete subscription from database.
+        """
         subscription = session.query(Subscription).filter(Subscription.id == id).first()
         if not subscription:
             abort(404, message="Subscription {} doesn't exist".format(id))
@@ -49,6 +58,9 @@ class SubscriptionResource(Resource):
     @access_required(Rights.MOD)
     @marshal_with(subscription_fields)
     def put(self, id):
+        """
+        Update subscription's data.
+        """
         parsed_args = parser.parse_args()
         subscription = session.query(Subscription).filter(Subscription.id == id).first()
         subscription.start = parsed_args['start']
@@ -62,15 +74,24 @@ class SubscriptionResource(Resource):
 
 
 class SubscriptionListResource(Resource):
+    """
+    Resources for 'subscriptions' (/api/subscriptions) endpoint.
+    """
     @access_required(Rights.MOD)
     @marshal_with(subscription_fields)
     def get(self):
+        """
+        Returns data of all subscriptions.
+        """
         subscriptions = session.query(Subscription).all()
         return subscriptions
 
     @access_required(Rights.MOD)
     @marshal_with(subscription_fields)
     def post(self):
+        """
+        Create new subscription.
+        """
         parsed_args = parser.parse_args()
         subscription = Subscription(start=parsed_args['start'],
                                     end=parsed_args['end'],

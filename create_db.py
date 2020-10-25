@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-
+"""
+Create new database tables for models
+"""
 if __name__ == "__main__":
     from sqlalchemy import create_engine
     from classes.config import config

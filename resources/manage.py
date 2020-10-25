@@ -31,7 +31,7 @@ client_fields = {
     'cars': NestedWithEmpty({
         'plate': fields.String,
         'uri': fields.Url('car', absolute=True),
-    },allow_empty=True),
+    }, allow_empty=True),
     'user': NestedWithEmpty({
         'name': fields.String,
         'user_type': fields.Integer,
@@ -50,14 +50,24 @@ parser_client.add_argument('phone', type=str, required=False, nullable=True)
 
 
 class UserManageResource(Resource):
+    """
+    Resources for 'user_manage' (/api/user) endpoint.
+    """
+
     @token_required
     @marshal_with(user_fields)
     def get(self):
+        """
+        Returns the data of the currently authenticated user.
+        """
         return auth.user
 
     @token_required
     @marshal_with(user_fields)
     def put(self):
+        """
+        Update and returns the data of the currently authenticated user.
+        """
         parsed_args = parser_user.parse_args()
         auth.user.hash_password(parsed_args['password'])
         session.add(auth.user)
@@ -66,9 +76,16 @@ class UserManageResource(Resource):
 
 
 class ClientManageResource(Resource):
+    """
+    Resources for 'client_manage' (/api/client) endpoint.
+    """
+
     @token_required
     @marshal_with(client_fields)
     def get(self):
+        """
+        Returns the client data of the currently authenticated user.
+        """
         if not auth.user.client:
             abort(404, message="Client doesn't exist")
         return auth.user.client
@@ -76,6 +93,9 @@ class ClientManageResource(Resource):
     @token_required
     @marshal_with(client_fields)
     def put(self):
+        """
+        Update and returns the client data of the currently authenticated user.
+        """
         client = session.query(Client).filter(Client.user_id == auth.user.id).first()
         if not client:
             abort(404, message="Client doesn't exist")
