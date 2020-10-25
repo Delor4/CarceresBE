@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from flask_restful import abort, marshal
 
+from classes.config import config
 from db import session
 
 
@@ -14,7 +15,7 @@ def list_view(model_class, resource_fields, resource_url):
         resource_fields,
         resource_url,
         start=int(request.args.get('start', 1)),
-        limit=int(request.args.get('limit', 20))
+        limit=int(request.args.get('limit', config['DEFAULT_PAGE_LIMIT']))
     ))
 
 

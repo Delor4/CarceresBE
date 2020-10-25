@@ -7,7 +7,7 @@ def set_default(cfg, field, val):
     """
     Set default value to field if not present in config.
     """
-    if not cfg[field] or cfg[field] is None:
+    if field not in cfg or cfg[field] is None:
         cfg[field] = val
 
 
@@ -19,3 +19,5 @@ set_default(config, 'SECRET_REFRESH_KEY_EXPIRATION', 2592000)
 
 set_default(config, 'AUTOBLOCKADE_ATTEMPTS', 5)
 set_default(config, 'AUTOBLOCKADE_TIME', 10)
+
+set_default(config, 'DEFAULT_PAGE_LIMIT', 25)
