@@ -1,4 +1,7 @@
+from flask import url_for
+
 from classes.auth import access_required, Rights
+from classes.views import list_view
 from db import session
 
 from flask_restful import reqparse
@@ -26,6 +29,7 @@ class CarResource(Resource):
     """
     Resources for 'car' (/api/cars/<id>) endpoint.
     """
+
     @access_required(Rights.MOD)
     @marshal_with(car_fields)
     def get(self, id):
@@ -70,14 +74,13 @@ class CarListResource(Resource):
     """
     Resources for 'cars' (/api/cars) endpoint.
     """
+
     @access_required(Rights.MOD)
-    @marshal_with(car_fields)
     def get(self):
         """
         Returns data of all cars.
         """
-        cars = session.query(Car).all()
-        return cars
+        return list_view(Car, car_fields, url_for(self.endpoint, _external=True))
 
     @access_required(Rights.MOD)
     @marshal_with(car_fields)

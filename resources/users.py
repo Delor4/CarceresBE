@@ -1,3 +1,4 @@
+from flask import url_for
 from flask_restful import Resource, fields
 from flask_restful import abort
 from flask_restful import marshal_with
@@ -5,6 +6,7 @@ from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.auth import token_required, access_required, Rights
+from classes.views import list_view
 from db import session
 from models.user import User
 
@@ -36,6 +38,7 @@ class UserResource(Resource):
     """
     Resources for 'user' (/api/users/<id>) endpoint.
     """
+
     @access_required(Rights.MOD)
     @marshal_with(user_fields)
     def get(self, id):
@@ -79,14 +82,13 @@ class UserListResource(Resource):
     """
     Resources for 'users' (/api/users) endpoint.
     """
+
     @token_required
-    @marshal_with(user_fields)
     def get(self):
         """
         Returns data of all users.
         """
-        users = session.query(User).all()
-        return users
+        return list_view(User, user_fields, url_for(self.endpoint, _external=True))
 
     @access_required(Rights.ADMIN)
     @marshal_with(user_fields)

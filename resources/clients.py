@@ -1,3 +1,4 @@
+from flask import url_for
 from flask_restful import Resource
 from flask_restful import abort
 from flask_restful import fields
@@ -6,6 +7,7 @@ from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.auth import access_required, Rights
+from classes.views import list_view
 from db import session
 from models.client import Client
 from models.user import User
@@ -46,6 +48,7 @@ class ClientResource(Resource):
     """
     Resources for 'client' (/api/clients/<id>) endpoint.
     """
+
     @access_required(Rights.MOD)
     @marshal_with(client_fields)
     def get(self, id):
@@ -96,14 +99,13 @@ class ClientListResource(Resource):
     """
     Resources for 'clients' (/api/clients/<id>) endpoint.
     """
+
     @access_required(Rights.MOD)
-    @marshal_with(client_fields)
     def get(self):
         """
         Returns data of all clients.
         """
-        clients = session.query(Client).all()
-        return clients
+        return list_view(Client, client_fields, url_for(self.endpoint, _external=True))
 
     @access_required(Rights.MOD)
     @marshal_with(client_fields)

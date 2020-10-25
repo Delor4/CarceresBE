@@ -1,4 +1,7 @@
+from flask import url_for
+
 from classes.auth import access_required, Rights
+from classes.views import list_view
 from db import session
 
 from flask_restful import reqparse, inputs
@@ -32,6 +35,7 @@ class SubscriptionResource(Resource):
     """
     Resources for 'subscription' (/api/subscriptions/<id>) endpoint.
     """
+
     @access_required(Rights.MOD)
     @marshal_with(subscription_fields)
     def get(self, id):
@@ -77,14 +81,13 @@ class SubscriptionListResource(Resource):
     """
     Resources for 'subscriptions' (/api/subscriptions) endpoint.
     """
+
     @access_required(Rights.MOD)
-    @marshal_with(subscription_fields)
     def get(self):
         """
         Returns data of all subscriptions.
         """
-        subscriptions = session.query(Subscription).all()
-        return subscriptions
+        return list_view(Subscription, subscription_fields, url_for(self.endpoint, _external=True))
 
     @access_required(Rights.MOD)
     @marshal_with(subscription_fields)

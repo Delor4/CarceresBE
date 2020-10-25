@@ -1,4 +1,7 @@
+from flask import url_for
+
 from classes.auth import access_required, Rights
+from classes.views import list_view
 from db import session
 
 from flask_restful import reqparse
@@ -32,6 +35,7 @@ class PlaceResource(Resource):
     """
     Resources for 'place' (/api/places/<id>) endpoint.
     """
+
     @access_required(Rights.USER)
     @marshal_with(place_fields)
     def get(self, id):
@@ -79,14 +83,13 @@ class PlaceListResource(Resource):
     """
     Resources for 'places' (/api/places/<id>) endpoint.
     """
+
     @access_required(Rights.USER)
-    @marshal_with(place_fields)
     def get(self):
         """
         Returns data of all places.
         """
-        places = session.query(Place).all()
-        return places
+        return list_view(Place, place_fields, url_for(self.endpoint, _external=True))
 
     @access_required(Rights.ADMIN)
     @marshal_with(place_fields)

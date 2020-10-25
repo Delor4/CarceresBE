@@ -1,4 +1,7 @@
+from flask import url_for
+
 from classes.auth import access_required, Rights
+from classes.views import list_view
 from db import session
 
 from flask_restful import reqparse
@@ -70,13 +73,11 @@ class ZoneListResource(Resource):
     Resources for 'zones' (/api/zones) endpoint.
     """
     @access_required(Rights.USER)
-    @marshal_with(zone_fields)
     def get(self):
         """
         Returns data of all zones.
         """
-        zones = session.query(Zone).all()
-        return zones
+        return list_view(Zone, zone_fields, url_for(self.endpoint, _external=True))
 
     @access_required(Rights.ADMIN)
     @marshal_with(zone_fields)
