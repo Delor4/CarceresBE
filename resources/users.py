@@ -1,12 +1,13 @@
 from flask import url_for
-from flask_restful import Resource, fields
+from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
+from classes.ResourceBase import ResourceBase
 from classes.SingleResource import SingleResource
 from classes.auth import token_required, access_required, Rights
-from classes.views import list_view, make_response_headers
+from classes.views import list_view
 from db import session
 from models.user import User
 
@@ -71,12 +72,10 @@ class UserResource(SingleResource):
         user.name = parsed_args['name']
         user.user_type = parsed_args['user_type']
         user.hash_password(parsed_args['password'])
-        session.add(user)
-        session.commit()
-        return user, 201, self.make_response_headers(user)
+        return self.finalize_put_req(user)
 
 
-class UserListResource(Resource):
+class UserListResource(ResourceBase):
     """
     Resources for 'users' (/api/users) endpoint.
     """
@@ -99,4 +98,4 @@ class UserListResource(Resource):
         user.hash_password(parsed_args['password'])
         session.add(user)
         session.commit()
-        return user, 201, make_response_headers(user, location=url_for('user', id=user.id, _external=True))
+        return user, 201, self.make_response_headers(user, location=url_for('user', id=user.id, _external=True))

@@ -1,12 +1,12 @@
 from flask import url_for
-from flask_restful import Resource
 from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
+from classes.ResourceBase import ResourceBase
 from classes.SingleResource import SingleResource
 from classes.auth import access_required, Rights
-from classes.views import list_view, make_response_headers
+from classes.views import list_view
 from db import session
 from models.zone import Zone
 from resources.places import place_fields
@@ -60,12 +60,10 @@ class ZoneResource(SingleResource):
         zone = self.get_model(id)
         zone.name = parsed_args['name']
         zone.bkg_file = parsed_args['bkg_file']
-        session.add(zone)
-        session.commit()
-        return zone, 201, self.make_response_headers(zone)
+        return self.finalize_put_req(zone)
 
 
-class ZoneListResource(Resource):
+class ZoneListResource(ResourceBase):
     """
     Resources for 'zones' (/api/zones) endpoint.
     """
@@ -87,4 +85,4 @@ class ZoneListResource(Resource):
         zone = Zone(name=parsed_args['name'], bkg_file=parsed_args['bkg_file'])
         session.add(zone)
         session.commit()
-        return zone, 201, make_response_headers(zone, location=url_for('zone', id=zone.id, _external=True))
+        return zone, 201, self.make_response_headers(zone, location=url_for('zone', id=zone.id, _external=True))

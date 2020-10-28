@@ -1,11 +1,10 @@
-from flask_restful import Resource, fields, abort
+from flask_restful import fields, abort
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.ResourceBase import ResourceBase
 from classes.auth import token_required, auth
-from classes.views import make_response_headers
 from db import session
 from models.client import Client
 
@@ -77,7 +76,7 @@ class UserManageResource(ResourceBase):
         return auth.user, 201, self.make_response_headers(auth.user)
 
 
-class ClientManageResource(Resource):
+class ClientManageResource(ResourceBase):
     """
     Resources for 'client_manage' (/api/client) endpoint.
     """

@@ -1,12 +1,12 @@
 from flask import url_for
-from flask_restful import Resource
 from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse, inputs
 
+from classes.ResourceBase import ResourceBase
 from classes.SingleResource import SingleResource
 from classes.auth import access_required, Rights
-from classes.views import list_view, make_response_headers
+from classes.views import list_view
 from db import session
 from models.subscription import Subscription
 
@@ -68,12 +68,10 @@ class SubscriptionResource(SingleResource):
         subscription.type = parsed_args['type']
         subscription.place_id = parsed_args['place_id']
         subscription.car_id = parsed_args['car_id']
-        session.add(subscription)
-        session.commit()
-        return subscription, 201, self.make_response_headers(subscription)
+        return self.finalize_put_req(subscription)
 
 
-class SubscriptionListResource(Resource):
+class SubscriptionListResource(ResourceBase):
     """
     Resources for 'subscriptions' (/api/subscriptions) endpoint.
     """
@@ -100,6 +98,6 @@ class SubscriptionListResource(Resource):
                                     )
         session.add(subscription)
         session.commit()
-        return subscription, 201, make_response_headers(subscription,
-                                                        location=url_for('subscription', id=subscription.id,
-                                                                         _external=True))
+        return subscription, 201, self.make_response_headers(subscription,
+                                                             location=url_for('subscription', id=subscription.id,
+                                                                              _external=True))

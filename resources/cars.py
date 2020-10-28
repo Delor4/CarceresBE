@@ -5,9 +5,10 @@ from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
+from classes.ResourceBase import ResourceBase
 from classes.SingleResource import SingleResource
 from classes.auth import access_required, Rights
-from classes.views import list_view, make_response_headers
+from classes.views import list_view
 from db import session
 from models.car import Car
 from models.client import Client
@@ -64,12 +65,10 @@ class CarResource(SingleResource):
         if not client:
             abort(404, message=f"Client {parsed_args['client_id']} doesn't exist")
         client.cars.append(car)
-        session.add(car)
-        session.commit()
-        return car, 201, self.make_response_headers(car)
+        return self.finalize_put_req(car)
 
 
-class CarListResource(Resource):
+class CarListResource(ResourceBase):
     """
     Resources for 'cars' (/api/cars) endpoint.
     """
@@ -93,4 +92,4 @@ class CarListResource(Resource):
         client.cars.append(car)
         session.add(car)
         session.commit()
-        return car, 201, make_response_headers(car, location=url_for('car', id=car.id, _external=True))
+        return car, 201, self.make_response_headers(car, location=url_for('car', id=car.id, _external=True))

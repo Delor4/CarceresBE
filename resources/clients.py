@@ -1,14 +1,13 @@
 from flask import url_for
-from flask_restful import Resource
-from flask_restful import abort
 from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
+from classes.ResourceBase import ResourceBase
 from classes.SingleResource import SingleResource
 from classes.auth import access_required, Rights
-from classes.views import list_view, make_response_headers
+from classes.views import list_view
 from db import session
 from models.client import Client
 from models.user import User
@@ -89,12 +88,10 @@ class ClientResource(SingleResource):
         if user is not None:
             user.client = client
             client.user.append(user)
-        session.add(client)
-        session.commit()
-        return client, 201, self.make_response_headers(client)
+        return self.finalize_put_req(client)
 
 
-class ClientListResource(Resource):
+class ClientListResource(ResourceBase):
     """
     Resources for 'clients' (/api/clients/<id>) endpoint.
     """
@@ -126,4 +123,4 @@ class ClientListResource(Resource):
             client.user = user
         session.add(client)
         session.commit()
-        return client, 201, make_response_headers(client, location=url_for('client', id=client.id, _external=True))
+        return client, 201, self.make_response_headers(client, location=url_for('client', id=client.id, _external=True))

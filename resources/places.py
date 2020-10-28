@@ -1,18 +1,16 @@
 from flask import url_for
-
-from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights
-from classes.views import list_view, make_response_headers
-from db import session
-
-from flask_restful import reqparse
 from flask_restful import abort
-from flask_restful import Resource
 from flask_restful import fields
 from flask_restful import marshal_with
+from flask_restful import reqparse
 
-from models.zone import Zone
+from classes.ResourceBase import ResourceBase
+from classes.SingleResource import SingleResource
+from classes.auth import access_required, Rights
+from classes.views import list_view
+from db import session
 from models.place import Place
+from models.zone import Zone
 
 place_fields = {
     'id': fields.Integer,
@@ -75,12 +73,10 @@ class PlaceResource(SingleResource):
         if not zone:
             abort(404, message=f"Zone {parsed_args['zone_id']} doesn't exist")
         zone.places.append(place)
-        session.add(place)
-        session.commit()
-        return place, 201, self.make_response_headers(place)
+        return self.finalize_put_req(place)
 
 
-class PlaceListResource(Resource):
+class PlaceListResource(ResourceBase):
     """
     Resources for 'places' (/api/places/<id>) endpoint.
     """
@@ -105,4 +101,4 @@ class PlaceListResource(Resource):
         zone.places.append(place)
         session.add(place)
         session.commit()
-        return place, 201, make_response_headers(place, location=url_for('place', id=place.id, _external=True))
+        return place, 201, self.make_response_headers(place, location=url_for('place', id=place.id, _external=True))

@@ -1,6 +1,4 @@
 import re
-from datetime import timezone
-from email.utils import format_datetime
 
 from flask import jsonify, request
 from flask_restful import abort, marshal
@@ -8,16 +6,6 @@ from sqlalchemy import asc, desc
 
 from classes.config import config
 from db import session
-
-
-def make_response_headers(obj, location=None):
-    d = obj.updated_on
-    headers = {
-        "Last-Modified": format_datetime(d.replace(tzinfo=timezone.utc), usegmt=True)
-    }
-    if location is not None:
-        headers['Location'] = location
-    return headers
 
 
 def list_view(model_class, resource_fields, resource_url):

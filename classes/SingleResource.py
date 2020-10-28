@@ -1,7 +1,6 @@
 from flask_restful import abort
 
 from classes.ResourceBase import ResourceBase
-from classes.views import make_response_headers
 from db import session
 
 
@@ -29,3 +28,8 @@ class SingleResource(ResourceBase):
         session.delete(model)
         session.commit()
         return {}, 204
+
+    def finalize_put_req(self, model):
+        session.add(model)
+        session.commit()
+        return model, 201, self.make_response_headers(model)
