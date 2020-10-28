@@ -1,15 +1,13 @@
 from flask import url_for
-
-from classes.auth import access_required, Rights
-from classes.views import list_view
-from db import session
-
-from flask_restful import reqparse
-from flask_restful import abort
 from flask_restful import Resource
+from flask_restful import abort
 from flask_restful import fields
 from flask_restful import marshal_with
+from flask_restful import reqparse
 
+from classes.auth import access_required, Rights
+from classes.views import list_view, make_time_headers
+from db import session
 from models.car import Car
 from models.client import Client
 
@@ -39,7 +37,7 @@ class CarResource(Resource):
         car = session.query(Car).filter(Car.id == id).first()
         if not car:
             abort(404, message="Car {} doesn't exist".format(id))
-        return car
+        return car, 200, make_time_headers(car)
 
     @access_required(Rights.MOD)
     def delete(self, id):
@@ -64,10 +62,10 @@ class CarResource(Resource):
         car.plate = parsed_args['plate']
         car.client_id = parsed_args['client_id']
         client = session.query(Client).filter(Client.id == parsed_args['client_id']).first()
-        client.places.append(car)
+        client.cars.append(car)
         session.add(car)
         session.commit()
-        return car, 201
+        return car, 201, make_time_headers(car)
 
 
 class CarListResource(Resource):

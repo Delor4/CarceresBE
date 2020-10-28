@@ -14,5 +14,5 @@ class Zone(Base):
     bkg_file = Column(String(193), nullable=False)
     places = relationship("Place", backref="zones.id")
 
-    Column('created_on', DateTime(), default=datetime.now)
-    Column('updated_on', DateTime(), default=datetime.now, onupdate=datetime.now)
+    created_on = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False,)
+    updated_on = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

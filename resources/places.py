@@ -1,7 +1,7 @@
 from flask import url_for
 
 from classes.auth import access_required, Rights
-from classes.views import list_view
+from classes.views import list_view, make_time_headers
 from db import session
 
 from flask_restful import reqparse
@@ -45,7 +45,7 @@ class PlaceResource(Resource):
         place = session.query(Place).filter(Place.id == id).first()
         if not place:
             abort(404, message="Place {} doesn't exist".format(id))
-        return place
+        return place, 200, make_time_headers(place)
 
     @access_required(Rights.ADMIN)
     def delete(self, id):
@@ -76,7 +76,7 @@ class PlaceResource(Resource):
         zone.places.append(place)
         session.add(place)
         session.commit()
-        return place, 201
+        return place, 201, make_time_headers(place)
 
 
 class PlaceListResource(Resource):

@@ -7,7 +7,7 @@ from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.auth import access_required, Rights
-from classes.views import list_view
+from classes.views import list_view, make_time_headers
 from db import session
 from models.client import Client
 from models.user import User
@@ -58,7 +58,7 @@ class ClientResource(Resource):
         client = session.query(Client).filter(Client.id == id).first()
         if not client:
             abort(404, message="Client {} doesn't exist".format(id))
-        return client
+        return client, 200, make_time_headers(client)
 
     @access_required(Rights.MOD)
     def delete(self, id):
@@ -92,7 +92,7 @@ class ClientResource(Resource):
             client.user.append(user)
         session.add(client)
         session.commit()
-        return client, 201
+        return client, 201, make_time_headers(client)
 
 
 class ClientListResource(Resource):

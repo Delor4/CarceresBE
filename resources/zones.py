@@ -1,7 +1,7 @@
 from flask import url_for
 
 from classes.auth import access_required, Rights
-from classes.views import list_view
+from classes.views import list_view, make_time_headers
 from db import session
 
 from flask_restful import reqparse
@@ -39,7 +39,7 @@ class ZoneResource(Resource):
         zone = session.query(Zone).filter(Zone.id == id).first()
         if not zone:
             abort(404, message="Zone {} doesn't exist".format(id))
-        return zone
+        return zone, 200, make_time_headers(zone)
 
     @access_required(Rights.ADMIN)
     def delete(self, id):
@@ -65,7 +65,7 @@ class ZoneResource(Resource):
         zone.bkg_file = parsed_args['bkg_file']
         session.add(zone)
         session.commit()
-        return zone, 201
+        return zone, 201, make_time_headers(zone)
 
 
 class ZoneListResource(Resource):

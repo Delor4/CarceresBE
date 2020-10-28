@@ -1,7 +1,7 @@
 from flask import url_for
 
 from classes.auth import access_required, Rights
-from classes.views import list_view
+from classes.views import list_view, make_time_headers
 from db import session
 
 from flask_restful import reqparse, inputs
@@ -45,7 +45,7 @@ class SubscriptionResource(Resource):
         subscription = session.query(Subscription).filter(Subscription.id == id).first()
         if not subscription:
             abort(404, message="Subscription {} doesn't exist".format(id))
-        return subscription
+        return subscription, 200, make_time_headers(subscription)
 
     @access_required(Rights.MOD)
     def delete(self, id):
@@ -74,7 +74,7 @@ class SubscriptionResource(Resource):
         subscription.car_id = parsed_args['car_id']
         session.add(subscription)
         session.commit()
-        return subscription, 201
+        return subscription, 201, make_time_headers(subscription)
 
 
 class SubscriptionListResource(Resource):
