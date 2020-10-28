@@ -6,6 +6,7 @@ from flask_restful import marshal_with
 from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
+from classes.SingleResource import SingleResource
 from classes.auth import access_required, Rights
 from classes.views import list_view, make_response_headers
 from db import session
@@ -44,10 +45,16 @@ parser.add_argument('phone', type=str, required=False, nullable=True)
 parser.add_argument('user_id', type=int, required=False, nullable=True)
 
 
-class ClientResource(Resource):
+class ClientResource(SingleResource):
     """
     Resources for 'client' (/api/clients/<id>) endpoint.
     """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = Client
+        self.model_name = "Client"
+        self.marshal_fields = client_fields
 
     @access_required(Rights.MOD)
     @marshal_with(client_fields)
@@ -55,22 +62,14 @@ class ClientResource(Resource):
         """
         Returns client's data.
         """
-        client = session.query(Client).filter(Client.id == id).first()
-        if not client:
-            abort(404, message="Client {} doesn't exist".format(id))
-        return client, 200, make_response_headers(client)
+        return self.process_get_req(id)
 
     @access_required(Rights.MOD)
     def delete(self, id):
         """
         Delete client from database.
         """
-        client = session.query(Client).filter(Client.id == id).first()
-        if not client:
-            abort(404, message="Client {} doesn't exist".format(id))
-        session.delete(client)
-        session.commit()
-        return {}, 204
+        return self.process_delete_req(id)
 
     @access_required(Rights.MOD)
     @marshal_with(client_fields)
@@ -79,7 +78,7 @@ class ClientResource(Resource):
         Update client's data.
         """
         parsed_args = parser.parse_args()
-        client = session.query(Client).filter(Client.id == id).first()
+        client = self.get_model(id)
         client.name = parsed_args['name']
         client.surname = parsed_args['surname']
         client.address = parsed_args['address']
@@ -92,7 +91,7 @@ class ClientResource(Resource):
             client.user.append(user)
         session.add(client)
         session.commit()
-        return client, 201, make_response_headers(client)
+        return client, 201, self.make_response_headers(client)
 
 
 class ClientListResource(Resource):

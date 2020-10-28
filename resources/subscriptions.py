@@ -1,15 +1,13 @@
 from flask import url_for
-
-from classes.auth import access_required, Rights
-from classes.views import list_view, make_response_headers
-from db import session
-
-from flask_restful import reqparse, inputs
-from flask_restful import abort
 from flask_restful import Resource
 from flask_restful import fields
 from flask_restful import marshal_with
+from flask_restful import reqparse, inputs
 
+from classes.SingleResource import SingleResource
+from classes.auth import access_required, Rights
+from classes.views import list_view, make_response_headers
+from db import session
 from models.subscription import Subscription
 
 subscription_fields = {
@@ -31,10 +29,16 @@ parser.add_argument('place_id', type=int, required=True, nullable=False)
 parser.add_argument('car_id', type=int, required=True, nullable=False)
 
 
-class SubscriptionResource(Resource):
+class SubscriptionResource(SingleResource):
     """
     Resources for 'subscription' (/api/subscriptions/<id>) endpoint.
     """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = Subscription
+        self.model_name = "Subscription"
+        self.marshal_fields = subscription_fields
 
     @access_required(Rights.MOD)
     @marshal_with(subscription_fields)
@@ -42,22 +46,14 @@ class SubscriptionResource(Resource):
         """
         Returns subscription's data.
         """
-        subscription = session.query(Subscription).filter(Subscription.id == id).first()
-        if not subscription:
-            abort(404, message="Subscription {} doesn't exist".format(id))
-        return subscription, 200, make_response_headers(subscription)
+        return self.process_get_req(id)
 
     @access_required(Rights.MOD)
     def delete(self, id):
         """
         Delete subscription from database.
         """
-        subscription = session.query(Subscription).filter(Subscription.id == id).first()
-        if not subscription:
-            abort(404, message="Subscription {} doesn't exist".format(id))
-        session.delete(subscription)
-        session.commit()
-        return {}, 204
+        return self.process_delete_req(id)
 
     @access_required(Rights.MOD)
     @marshal_with(subscription_fields)
@@ -66,7 +62,7 @@ class SubscriptionResource(Resource):
         Update subscription's data.
         """
         parsed_args = parser.parse_args()
-        subscription = session.query(Subscription).filter(Subscription.id == id).first()
+        subscription = self.get_model(id)
         subscription.start = parsed_args['start']
         subscription.end = parsed_args['end']
         subscription.type = parsed_args['type']
@@ -74,7 +70,7 @@ class SubscriptionResource(Resource):
         subscription.car_id = parsed_args['car_id']
         session.add(subscription)
         session.commit()
-        return subscription, 201, make_response_headers(subscription)
+        return subscription, 201, self.make_response_headers(subscription)
 
 
 class SubscriptionListResource(Resource):
@@ -104,5 +100,6 @@ class SubscriptionListResource(Resource):
                                     )
         session.add(subscription)
         session.commit()
-        return subscription, 201, make_response_headers(subscription, location=url_for('subscription', id=subscription.id,
-                                                                                       _external=True))
+        return subscription, 201, make_response_headers(subscription,
+                                                        location=url_for('subscription', id=subscription.id,
+                                                                         _external=True))

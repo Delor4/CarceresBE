@@ -3,6 +3,7 @@ from flask_restful import marshal_with
 from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
+from classes.ResourceBase import ResourceBase
 from classes.auth import token_required, auth
 from classes.views import make_response_headers
 from db import session
@@ -50,7 +51,7 @@ parser_client.add_argument('city', type=str, required=False, nullable=True)
 parser_client.add_argument('phone', type=str, required=False, nullable=True)
 
 
-class UserManageResource(Resource):
+class UserManageResource(ResourceBase):
     """
     Resources for 'user_manage' (/api/user) endpoint.
     """
@@ -61,7 +62,7 @@ class UserManageResource(Resource):
         """
         Returns the data of the currently authenticated user.
         """
-        return auth.user, 200, make_response_headers(auth.user)
+        return auth.user, 200, self.make_response_headers(auth.user)
 
     @token_required
     @marshal_with(user_fields)
@@ -73,7 +74,7 @@ class UserManageResource(Resource):
         auth.user.hash_password(parsed_args['password'])
         session.add(auth.user)
         session.commit()
-        return auth.user, 201, make_response_headers(auth.user)
+        return auth.user, 201, self.make_response_headers(auth.user)
 
 
 class ClientManageResource(Resource):
@@ -89,7 +90,7 @@ class ClientManageResource(Resource):
         """
         if not auth.user.client:
             abort(404, message="Client doesn't exist")
-        return auth.user.client, 200, make_response_headers(auth.user.client)
+        return auth.user.client, 200, self.make_response_headers(auth.user.client)
 
     @token_required
     @marshal_with(client_fields)
@@ -113,4 +114,4 @@ class ClientManageResource(Resource):
             client.phone = parsed_args['phone']
         session.add(client)
         session.commit()
-        return client, 201, make_response_headers(auth.user.client)
+        return client, 201, self.make_response_headers(auth.user.client)

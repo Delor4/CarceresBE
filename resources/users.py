@@ -1,10 +1,10 @@
 from flask import url_for
 from flask_restful import Resource, fields
-from flask_restful import abort
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
+from classes.SingleResource import SingleResource
 from classes.auth import token_required, access_required, Rights
 from classes.views import list_view, make_response_headers
 from db import session
@@ -34,10 +34,16 @@ parser.add_argument('user_type', type=str)
 parser.add_argument('password', type=str, required=True, nullable=False)
 
 
-class UserResource(Resource):
+class UserResource(SingleResource):
     """
     Resources for 'user' (/api/users/<id>) endpoint.
     """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = User
+        self.model_name = "User"
+        self.marshal_fields = user_fields
 
     @access_required(Rights.MOD)
     @marshal_with(user_fields)
@@ -45,22 +51,14 @@ class UserResource(Resource):
         """
         Returns user's data.
         """
-        user = session.query(User).filter(User.id == id).first()
-        if not user:
-            abort(404, message="User {} doesn't exist".format(id))
-        return user, 200, make_response_headers(user)
+        return self.process_get_req(id)
 
     @access_required(Rights.ADMIN)
     def delete(self, id):
         """
         Delete user from database.
         """
-        user = session.query(User).filter(User.id == id).first()
-        if not user:
-            abort(404, message="User {} doesn't exist".format(id))
-        session.delete(user)
-        session.commit()
-        return {}, 204
+        return self.process_delete_req(id)
 
     @access_required(Rights.ADMIN)
     @marshal_with(user_fields)
@@ -69,13 +67,13 @@ class UserResource(Resource):
         Update user's data.
         """
         parsed_args = parser.parse_args()
-        user = session.query(User).filter(User.id == id).first()
+        user = self.get_model(id)
         user.name = parsed_args['name']
         user.user_type = parsed_args['user_type']
         user.hash_password(parsed_args['password'])
         session.add(user)
         session.commit()
-        return user, 201, make_response_headers(user)
+        return user, 201, self.make_response_headers(user)
 
 
 class UserListResource(Resource):

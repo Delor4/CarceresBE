@@ -1,5 +1,6 @@
 from flask import url_for
 
+from classes.SingleResource import SingleResource
 from classes.auth import access_required, Rights
 from classes.views import list_view, make_response_headers
 from db import session
@@ -31,10 +32,16 @@ parser.add_argument('pos_x', type=float, required=False, nullable=True)
 parser.add_argument('pos_y', type=float, required=False, nullable=True)
 
 
-class PlaceResource(Resource):
+class PlaceResource(SingleResource):
     """
     Resources for 'place' (/api/places/<id>) endpoint.
     """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = Place
+        self.model_name = "Place"
+        self.marshal_fields = place_fields
 
     @access_required(Rights.USER)
     @marshal_with(place_fields)
@@ -42,22 +49,14 @@ class PlaceResource(Resource):
         """
         Returns place's data.
         """
-        place = session.query(Place).filter(Place.id == id).first()
-        if not place:
-            abort(404, message="Place {} doesn't exist".format(id))
-        return place, 200, make_response_headers(place)
+        return self.process_get_req(id)
 
     @access_required(Rights.ADMIN)
     def delete(self, id):
         """
         Delete place from database.
         """
-        place = session.query(Place).filter(Place.id == id).first()
-        if not place:
-            abort(404, message="Place {} doesn't exist".format(id))
-        session.delete(place)
-        session.commit()
-        return {}, 204
+        return self.process_delete_req(id)
 
     @access_required(Rights.ADMIN)
     @marshal_with(place_fields)
@@ -66,17 +65,19 @@ class PlaceResource(Resource):
         Update place's data.
         """
         parsed_args = parser.parse_args()
-        place = session.query(Place).filter(Place.id == id).first()
+        place = self.get_model(id)
         place.nr = parsed_args['nr']
         place.name = parsed_args['name']
         place.pos_x = parsed_args['pos_x']
         place.pos_y = parsed_args['pos_y']
         place.zone_id = parsed_args['zone_id']
         zone = session.query(Zone).filter(Zone.id == parsed_args['zone_id']).first()
+        if not zone:
+            abort(404, message=f"Zone {parsed_args['zone_id']} doesn't exist")
         zone.places.append(place)
         session.add(place)
         session.commit()
-        return place, 201, make_response_headers(place)
+        return place, 201, self.make_response_headers(place)
 
 
 class PlaceListResource(Resource):

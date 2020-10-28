@@ -5,6 +5,7 @@ from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
+from classes.SingleResource import SingleResource
 from classes.auth import access_required, Rights
 from classes.views import list_view, make_response_headers
 from db import session
@@ -23,10 +24,16 @@ parser.add_argument('plate', type=str, required=True, nullable=False)
 parser.add_argument('client_id', type=int, required=True, nullable=False)
 
 
-class CarResource(Resource):
+class CarResource(SingleResource):
     """
     Resources for 'car' (/api/cars/<id>) endpoint.
     """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = Car
+        self.model_name = "Car"
+        self.marshal_fields = car_fields
 
     @access_required(Rights.MOD)
     @marshal_with(car_fields)
@@ -34,22 +41,14 @@ class CarResource(Resource):
         """
         Returns car's data.
         """
-        car = session.query(Car).filter(Car.id == id).first()
-        if not car:
-            abort(404, message="Car {} doesn't exist".format(id))
-        return car, 200, make_response_headers(car)
+        return self.process_get_req(id)
 
     @access_required(Rights.MOD)
     def delete(self, id):
         """
         Delete car from database.
         """
-        car = session.query(Car).filter(Car.id == id).first()
-        if not car:
-            abort(404, message="Car {} doesn't exist".format(id))
-        session.delete(car)
-        session.commit()
-        return {}, 204
+        return self.process_delete_req(id)
 
     @access_required(Rights.MOD)
     @marshal_with(car_fields)
@@ -58,16 +57,16 @@ class CarResource(Resource):
         Update car's data.
         """
         parsed_args = parser.parse_args()
-        car = session.query(Car).filter(Car.id == id).first()
+        car = self.get_model(id)
         car.plate = parsed_args['plate']
         car.client_id = parsed_args['client_id']
         client = session.query(Client).filter(Client.id == parsed_args['client_id']).first()
+        if not client:
+            abort(404, message=f"Client {parsed_args['client_id']} doesn't exist")
         client.cars.append(car)
         session.add(car)
         session.commit()
-        return car, 201, make_response_headers(car)
-
-
+        return car, 201, self.make_response_headers(car)
 
 
 class CarListResource(Resource):
