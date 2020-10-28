@@ -80,6 +80,7 @@ class UserListResource(ResourceBase):
     Resources for 'users' (/api/users) endpoint.
     """
 
+    @access_required(Rights.MOD)
     @token_required
     def get(self):
         """
@@ -94,7 +95,7 @@ class UserListResource(ResourceBase):
         Create new user.
         """
         parsed_args = parser.parse_args()
-        user = User(name=parsed_args['name'], user_type=parsed_args['user_type'], )
+        user = User(name=parsed_args['name'], user_type=parsed_args['user_type'])
         user.hash_password(parsed_args['password'])
         session.add(user)
         session.commit()
