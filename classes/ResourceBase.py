@@ -9,6 +9,9 @@ class ResourceBase(Resource):
 
     @staticmethod
     def make_response_headers(obj, location=None):
+        """
+        Return additional response headers.
+        """
         d = obj.updated_on
         headers = {
             "Last-Modified": format_datetime(d.replace(tzinfo=timezone.utc), usegmt=True)
