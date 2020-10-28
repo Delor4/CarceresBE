@@ -6,7 +6,7 @@ from flask_restful import marshal_with
 from flask_restful import reqparse
 
 from classes.auth import access_required, Rights
-from classes.views import list_view, make_time_headers
+from classes.views import list_view, make_response_headers
 from db import session
 from models.car import Car
 from models.client import Client
@@ -37,7 +37,7 @@ class CarResource(Resource):
         car = session.query(Car).filter(Car.id == id).first()
         if not car:
             abort(404, message="Car {} doesn't exist".format(id))
-        return car, 200, make_time_headers(car)
+        return car, 200, make_response_headers(car)
 
     @access_required(Rights.MOD)
     def delete(self, id):
@@ -65,7 +65,9 @@ class CarResource(Resource):
         client.cars.append(car)
         session.add(car)
         session.commit()
-        return car, 201, make_time_headers(car)
+        return car, 201, make_response_headers(car)
+
+
 
 
 class CarListResource(Resource):
@@ -92,4 +94,4 @@ class CarListResource(Resource):
         client.cars.append(car)
         session.add(car)
         session.commit()
-        return car, 201
+        return car, 201, make_response_headers(car, location=url_for('car', id=car.id, _external=True))

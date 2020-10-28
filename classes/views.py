@@ -10,11 +10,14 @@ from classes.config import config
 from db import session
 
 
-def make_time_headers(obj):
+def make_response_headers(obj, location=None):
     d = obj.updated_on
-    return {
+    headers = {
         "Last-Modified": format_datetime(d.replace(tzinfo=timezone.utc), usegmt=True)
     }
+    if location is not None:
+        headers['Location'] = location
+    return headers
 
 
 def list_view(model_class, resource_fields, resource_url):

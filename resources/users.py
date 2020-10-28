@@ -6,7 +6,7 @@ from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.auth import token_required, access_required, Rights
-from classes.views import list_view, make_time_headers
+from classes.views import list_view, make_response_headers
 from db import session
 from models.user import User
 
@@ -48,7 +48,7 @@ class UserResource(Resource):
         user = session.query(User).filter(User.id == id).first()
         if not user:
             abort(404, message="User {} doesn't exist".format(id))
-        return user, 200, make_time_headers(user)
+        return user, 200, make_response_headers(user)
 
     @access_required(Rights.ADMIN)
     def delete(self, id):
@@ -75,7 +75,7 @@ class UserResource(Resource):
         user.hash_password(parsed_args['password'])
         session.add(user)
         session.commit()
-        return user, 201, make_time_headers(user)
+        return user, 201, make_response_headers(user)
 
 
 class UserListResource(Resource):
@@ -101,4 +101,4 @@ class UserListResource(Resource):
         user.hash_password(parsed_args['password'])
         session.add(user)
         session.commit()
-        return user, 201
+        return user, 201, make_response_headers(user, location=url_for('user', id=user.id, _external=True))
