@@ -8,7 +8,6 @@ from classes.ModelBase import ModelBase
 class Client(ModelBase):
     __tablename__ = 'clients'
 
-    id = Column(Integer, primary_key=True)
     name = Column(String(193))
     surname = Column(String(193))
     address = Column(String(193))

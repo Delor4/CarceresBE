@@ -8,7 +8,6 @@ from classes.ModelBase import ModelBase
 class Car(ModelBase):
     __tablename__ = 'cars'
 
-    id = Column(Integer, primary_key=True)
     plate = Column(String(193), unique=True)
     client_id = Column(Integer, ForeignKey("clients.id"))
 

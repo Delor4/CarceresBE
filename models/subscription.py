@@ -7,7 +7,6 @@ from classes.ModelBase import ModelBase
 class Subscription(ModelBase):
     __tablename__ = 'subscriptions'
 
-    id = Column(Integer, primary_key=True)
     start = Column(DateTime(), nullable=False)
     end = Column(DateTime(), nullable=False)
     type = Column(Integer, nullable=False)

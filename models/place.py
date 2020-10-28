@@ -8,7 +8,6 @@ from classes.ModelBase import ModelBase
 class Place(ModelBase):
     __tablename__ = 'places'
 
-    id = Column(Integer, primary_key=True)
     nr = Column(Integer)
     zone_id = Column(Integer, ForeignKey("zones.id"))
     name = Column(String(193), nullable=True)
