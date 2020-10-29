@@ -4,7 +4,7 @@ from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.ResourceBase import ResourceBase
-from classes.auth import token_required, auth
+from classes.auth import token_required, auth, nocache, set_last_modified
 from db import session
 from models.client import Client
 
@@ -57,13 +57,15 @@ class UserManageResource(ResourceBase):
 
     @token_required
     @marshal_with(user_fields)
+    @set_last_modified
     def get(self):
         """
         Returns the data of the currently authenticated user.
         """
-        return auth.user, 200, self.make_response_headers(auth.user)
+        return auth.user
 
     @token_required
+    @nocache
     @marshal_with(user_fields)
     def put(self):
         """
@@ -73,7 +75,7 @@ class UserManageResource(ResourceBase):
         auth.user.hash_password(parsed_args['password'])
         session.add(auth.user)
         session.commit()
-        return auth.user, 201, self.make_response_headers(auth.user)
+        return auth.user, 201
 
 
 class ClientManageResource(ResourceBase):
@@ -83,15 +85,17 @@ class ClientManageResource(ResourceBase):
 
     @token_required
     @marshal_with(client_fields)
+    @set_last_modified
     def get(self):
         """
         Returns the client data of the currently authenticated user.
         """
         if not auth.user.client:
             abort(404, message="Client doesn't exist")
-        return auth.user.client, 200, self.make_response_headers(auth.user.client)
+        return auth.user.client
 
     @token_required
+    @nocache
     @marshal_with(client_fields)
     def put(self):
         """
@@ -113,4 +117,4 @@ class ClientManageResource(ResourceBase):
             client.phone = parsed_args['phone']
         session.add(client)
         session.commit()
-        return client, 201, self.make_response_headers(auth.user.client)
+        return client, 201

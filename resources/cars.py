@@ -7,7 +7,7 @@ from flask_restful import reqparse
 
 from classes.ResourceBase import ResourceBase
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights
+from classes.auth import access_required, Rights, nocache
 from classes.views import list_view
 from db import session
 from models.car import Car
@@ -81,6 +81,7 @@ class CarListResource(ResourceBase):
         return list_view(Car, car_fields, url_for(self.endpoint, _external=True))
 
     @access_required(Rights.MOD)
+    @nocache
     @marshal_with(car_fields)
     def post(self):
         """
@@ -92,4 +93,4 @@ class CarListResource(ResourceBase):
         client.cars.append(car)
         session.add(car)
         session.commit()
-        return car, 201, self.make_response_headers(car, location=url_for('car', id=car.id, _external=True))
+        return car, 201, self.make_response_headers(location=url_for('car', id=car.id, _external=True))

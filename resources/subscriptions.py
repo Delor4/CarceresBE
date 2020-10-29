@@ -5,7 +5,7 @@ from flask_restful import reqparse, inputs
 
 from classes.ResourceBase import ResourceBase
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights
+from classes.auth import access_required, Rights, nocache
 from classes.views import list_view
 from db import session
 from models.subscription import Subscription
@@ -84,6 +84,7 @@ class SubscriptionListResource(ResourceBase):
         return list_view(Subscription, subscription_fields, url_for(self.endpoint, _external=True))
 
     @access_required(Rights.MOD)
+    @nocache
     @marshal_with(subscription_fields)
     def post(self):
         """
@@ -98,6 +99,5 @@ class SubscriptionListResource(ResourceBase):
                                     )
         session.add(subscription)
         session.commit()
-        return subscription, 201, self.make_response_headers(subscription,
-                                                             location=url_for('subscription', id=subscription.id,
+        return subscription, 201, self.make_response_headers(location=url_for('subscription', id=subscription.id,
                                                                               _external=True))

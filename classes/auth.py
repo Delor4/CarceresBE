@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta, timezone
+from email.utils import formatdate, format_datetime
 from functools import wraps, update_wrapper
-from datetime import datetime, timedelta
 
-from flask import request, jsonify, make_response
+from flask import request, jsonify, make_response, Response
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import abort
 from itsdangerous import SignatureExpired, BadSignature, TimedJSONWebSignatureSerializer as Serializer
@@ -13,17 +14,49 @@ from models.user import User
 auth = HTTPBasicAuth()
 
 
+def _unpack(res):
+    if type(res) is Response:
+        ret = make_response(res)
+        header = ret.headers
+    else:
+        if type(res) is not tuple:
+            ret = (res, 200, {})
+        else:
+            ret = (res[0], res[1] or 200, res[2] or {})
+        header = ret[2]
+    return ret, header
+
+
 def nocache(view):
+    """
+    Decorator. Sets response headers.
+    """
+
     @wraps(view)
     def no_cache(*args, **kwargs):
-        response = make_response(view(*args, **kwargs))
-        response.headers['Last-Modified'] = datetime.now()
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '-1'
-        return response
+        ret, header = _unpack(view(*args, **kwargs))
+        header['Last-Modified'] = formatdate(usegmt=True)
+        header['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+        header['Pragma'] = 'no-cache'
+        header['Expires'] = '-1'
+        return ret
 
     return update_wrapper(no_cache, view)
+
+
+def set_last_modified(view):
+    """
+    Decorator. Sets 'Last-Modified' header in response.
+    """
+
+    @wraps(view)
+    def setlastmodified(*args, **kwargs):
+        ret, header = _unpack(view(*args, **kwargs))
+        header['Last-Modified'] = format_datetime(ret[0].updated_on.replace(tzinfo=timezone.utc),
+                                                  usegmt=True)
+        return ret
+
+    return update_wrapper(setlastmodified, view)
 
 
 @auth.verify_password

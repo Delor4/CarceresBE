@@ -1,6 +1,7 @@
 from flask_restful import abort
 
 from classes.ResourceBase import ResourceBase
+from classes.auth import nocache, set_last_modified
 from db import session
 
 
@@ -22,6 +23,7 @@ class SingleResource(ResourceBase):
             abort(404, message=f"{self.model_name} {model_id} doesn't exist")
         return model
 
+    @set_last_modified
     def process_get_req(self, model_id):
         """
         Return model from the database. 404 when model is absent.
@@ -29,6 +31,7 @@ class SingleResource(ResourceBase):
         model = self.get_model(model_id)
         return model, 200, self.make_response_headers(model)
 
+    @nocache
     def process_delete_req(self, model_id):
         """
         Delete model from the database. Return 404 when model is absent.
@@ -38,6 +41,7 @@ class SingleResource(ResourceBase):
         session.commit()
         return {}, 204
 
+    @nocache
     def finalize_put_req(self, model):
         """
         Save model in database. Return to client with appropriate status code and headers.

@@ -6,7 +6,7 @@ from flask_restful import reqparse
 
 from classes.ResourceBase import ResourceBase
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights
+from classes.auth import access_required, Rights, nocache
 from classes.views import list_view
 from db import session
 from models.place import Place
@@ -89,6 +89,7 @@ class PlaceListResource(ResourceBase):
         return list_view(Place, place_fields, url_for(self.endpoint, _external=True))
 
     @access_required(Rights.ADMIN)
+    @nocache
     @marshal_with(place_fields)
     def post(self):
         """
@@ -101,4 +102,4 @@ class PlaceListResource(ResourceBase):
         zone.places.append(place)
         session.add(place)
         session.commit()
-        return place, 201, self.make_response_headers(place, location=url_for('place', id=place.id, _external=True))
+        return place, 201, self.make_response_headers(location=url_for('place', id=place.id, _external=True))

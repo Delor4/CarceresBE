@@ -6,7 +6,7 @@ from flask_restful import reqparse
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.ResourceBase import ResourceBase
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights
+from classes.auth import access_required, Rights, nocache
 from classes.views import list_view
 from db import session
 from models.client import Client
@@ -104,6 +104,7 @@ class ClientListResource(ResourceBase):
         return list_view(Client, client_fields, url_for(self.endpoint, _external=True))
 
     @access_required(Rights.MOD)
+    @nocache
     @marshal_with(client_fields)
     def post(self):
         """
@@ -123,4 +124,4 @@ class ClientListResource(ResourceBase):
             client.user = user
         session.add(client)
         session.commit()
-        return client, 201, self.make_response_headers(client, location=url_for('client', id=client.id, _external=True))
+        return client, 201, self.make_response_headers(location=url_for('client', id=client.id, _external=True))

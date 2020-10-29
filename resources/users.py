@@ -6,7 +6,7 @@ from flask_restful import reqparse
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.ResourceBase import ResourceBase
 from classes.SingleResource import SingleResource
-from classes.auth import token_required, access_required, Rights
+from classes.auth import token_required, access_required, Rights, nocache, set_last_modified
 from classes.views import list_view
 from db import session
 from models.user import User
@@ -89,6 +89,7 @@ class UserListResource(ResourceBase):
         return list_view(User, user_fields, url_for(self.endpoint, _external=True))
 
     @access_required(Rights.ADMIN)
+    @nocache
     @marshal_with(user_fields)
     def post(self):
         """
@@ -99,4 +100,4 @@ class UserListResource(ResourceBase):
         user.hash_password(parsed_args['password'])
         session.add(user)
         session.commit()
-        return user, 201, self.make_response_headers(user, location=url_for('user', id=user.id, _external=True))
+        return user, 201, self.make_response_headers(location=url_for('user', id=user.id, _external=True))

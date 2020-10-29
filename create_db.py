@@ -16,3 +16,4 @@ if __name__ == "__main__":
 
     engine = create_engine(config['SQLALCHEMY_DATABASE_URI'])
     base.Base.metadata.create_all(engine, checkfirst=True)
+    # TODO: make default user if Users.count()=0
