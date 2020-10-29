@@ -1,7 +1,7 @@
 from functools import wraps, update_wrapper
 from datetime import datetime, timedelta
 
-from flask import request, jsonify
+from flask import request, jsonify, make_response
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import abort
 from itsdangerous import SignatureExpired, BadSignature, TimedJSONWebSignatureSerializer as Serializer
@@ -11,6 +11,19 @@ from db import session
 from models.user import User
 
 auth = HTTPBasicAuth()
+
+
+def nocache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Last-Modified'] = datetime.now()
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        return response
+
+    return update_wrapper(no_cache, view)
 
 
 @auth.verify_password
@@ -43,6 +56,7 @@ def verify_password(username: str, password: str) -> bool:
 
 
 @auth.login_required
+@nocache
 def get_auth_tokens():
     """
     Returns new pair of tokens for authenticated user.
@@ -50,6 +64,7 @@ def get_auth_tokens():
     return _new_auth_tokens(auth.user.id)
 
 
+@nocache
 def refresh_token():
     """
     Check request's refresh token and return new pair of tokens.
