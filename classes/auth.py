@@ -48,8 +48,8 @@ def nocache(view):
 def set_last_modified(view):
     """
     Decorator. Sets 'Last-Modified' header in response.
+    Use with model object, before make response (e.g. @marshal_with evaluation).
     """
-
     @wraps(view)
     def _set_last_modified(*args, **kwargs):
         ret, header = _unpack(*view(*args, **kwargs))
@@ -109,7 +109,6 @@ def refresh_token():
     current_user = session.query(User).filter(User.id == data['id']).first()
     auth.user = current_user
 
-    # return jsonify({'msg': 'ok'})
     return _new_auth_tokens(auth.user.id)
 
 
