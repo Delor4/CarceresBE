@@ -35,7 +35,7 @@ def nocache(view):
     """
     @wraps(view)
     def no_cache(*args, **kwargs):
-        ret, header = _unpack(*view(*args, **kwargs))
+        ret, header = _unpack(view(*args, **kwargs))
         header['Last-Modified'] = formatdate(usegmt=True)
         header['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
         header['Pragma'] = 'no-cache'

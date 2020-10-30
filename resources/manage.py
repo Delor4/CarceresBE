@@ -56,8 +56,8 @@ class UserManageResource(ResourceBase):
     """
 
     @token_required
+    @nocache
     @marshal_with(user_fields)
-    @set_last_modified
     def get(self):
         """
         Returns the data of the currently authenticated user.
@@ -84,8 +84,8 @@ class ClientManageResource(ResourceBase):
     """
 
     @token_required
+    @nocache
     @marshal_with(client_fields)
-    @set_last_modified
     def get(self):
         """
         Returns the client data of the currently authenticated user.
