@@ -83,3 +83,16 @@ $ curl -H "Content-Type: application/json" --request POST -d'{refresh_token:"<to
 
 Don't forget add `Content-Type: application/json` header to your requests!
 All requests (except authorization requests) require a set `x-access-tokens` header.
+
+---
+Pagination, Sorting
+-------------------
+In requests to resource's endpoints (method `GET`) you can set additional parameters:
+- `start` - first returned elem from list (default: 1)
+- `limit` - max returned elements (default: 25 or `DEFAULT_PAGE_LIMIT` in config field)
+- `sort_by`- coma separated list of table fields, use `asc(field)`, `desc(field)` to set direction of sort
+
+URI examples:
+
+- `/api/clients?start=21&limit=10` - 10 clients, starting from 21
+- `/api/places?sort_by=asc(zone),nr` - places sorted by `zone` and then by `nr`
