@@ -1,14 +1,16 @@
-from flask_restful import Resource
-from flask_restful import abort
+from flask import url_for
 from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
+from classes.ResourceBase import ResourceBase
+from classes.SingleResource import SingleResource
+from classes.auth import access_required, Rights, nocache
+from classes.views import list_view
 from db import session
 from models.client import Client
 from models.user import User
-from resources.car import car_fields
 
 client_fields = {
     'id': fields.Integer,
@@ -17,7 +19,12 @@ client_fields = {
     'address': fields.String,
     'city': fields.String,
     'phone': fields.String,
-    'cars': fields.Nested(car_fields),
+    'cars': fields.Nested({
+        'id': fields.Integer,
+        'plate': fields.String,
+        'client_id': fields.Integer,
+        'uri': fields.Url('car', absolute=True),
+    }),
     'user_id': fields.Integer,
     'user': NestedWithEmpty({
         'id': fields.Integer,
@@ -37,26 +44,40 @@ parser.add_argument('phone', type=str, required=False, nullable=True)
 parser.add_argument('user_id', type=int, required=False, nullable=True)
 
 
-class ClientResource(Resource):
+class ClientResource(SingleResource):
+    """
+    Resources for 'client' (/api/clients/<id>) endpoint.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = Client
+        self.model_name = "Client"
+        self.marshal_fields = client_fields
+
+    @access_required(Rights.MOD)
     @marshal_with(client_fields)
     def get(self, id):
-        client = session.query(Client).filter(Client.id == id).first()
-        if not client:
-            abort(404, message="Client {} doesn't exist".format(id))
-        return client
+        """
+        Returns client's data.
+        """
+        return self.process_get_req(id)
 
+    @access_required(Rights.MOD)
     def delete(self, id):
-        client = session.query(Client).filter(Client.id == id).first()
-        if not client:
-            abort(404, message="Client {} doesn't exist".format(id))
-        session.delete(client)
-        session.commit()
-        return {}, 204
+        """
+        Delete client from database.
+        """
+        return self.process_delete_req(id)
 
+    @access_required(Rights.MOD)
     @marshal_with(client_fields)
     def put(self, id):
+        """
+        Update client's data.
+        """
         parsed_args = parser.parse_args()
-        client = session.query(Client).filter(Client.id == id).first()
+        client = self.get_model(id)
         client.name = parsed_args['name']
         client.surname = parsed_args['surname']
         client.address = parsed_args['address']
@@ -67,19 +88,28 @@ class ClientResource(Resource):
         if user is not None:
             user.client = client
             client.user.append(user)
-        session.add(client)
-        session.commit()
-        return client, 201
+        return self.finalize_put_req(client)
 
 
-class ClientListResource(Resource):
-    @marshal_with(client_fields)
+class ClientListResource(ResourceBase):
+    """
+    Resources for 'clients' (/api/clients/<id>) endpoint.
+    """
+
+    @access_required(Rights.MOD)
     def get(self):
-        clients = session.query(Client).all()
-        return clients
+        """
+        Returns data of all clients.
+        """
+        return list_view(Client, client_fields, url_for(self.endpoint, _external=True))
 
+    @access_required(Rights.MOD)
+    @nocache
     @marshal_with(client_fields)
     def post(self):
+        """
+        Create new client.
+        """
         parsed_args = parser.parse_args()
         client = Client(name=parsed_args['name'],
                         surname=parsed_args['surname'],
@@ -94,4 +124,4 @@ class ClientListResource(Resource):
             client.user = user
         session.add(client)
         session.commit()
-        return client, 201
+        return client, 201, self.make_response_headers(location=url_for('client', id=client.id, _external=True))

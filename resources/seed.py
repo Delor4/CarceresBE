@@ -2,6 +2,7 @@ from flask_restful import Resource
 
 from db import session
 from models.place import Place
+from models.user import User
 from models.zone import Zone
 
 
@@ -143,20 +144,44 @@ def get_zone2():
 
 
 class SeedResource(Resource):
+    """
+    Resources for 'seed' (/api/seed) endpoint.
+    """
     def get(self):
-        self.seed_places()
+        """
+        Seed the database.
+        """
+        self.seed_zones()
+        self.seed_users()
 
         session.commit()
         return {}, 200
 
-    def seed_places(self):
-        for index, pos in enumerate(get_zone1()['places']):
-            print(index, pos)
+    def seed_users(self):
+        user = User(name='admin',
+                    user_type=1,
+                    # pass: 'carceres'
+                    password_hash='$6$rounds=656000$qvRag7CybnVI6t78$CZMIiqioeKKrrHOHt9nfHyVnqs2JK69gYPbjFMHt.lGvGw8BKliAlJCzc0WR1aGLlNM9bclSz5klaaUAbPUZh1',
+                    )
+        session.add(user)
+        user = User(name='stroz',
+                    user_type=2,
+                    # pass: 's'
+                    password_hash="$6$rounds=656000$whFc0DVCMM6peC4x$bvgxj5eShNGWkI2e8E.hTXe2TOfiSBCgaIWfJCrEOD17uI7XPzkiqcvf.BX2/yhWfEwCHRlTzT3gITShKwA8a/",
+                    )
+        session.add(user)
+        user = User(name='klient',
+                    user_type=3,
+                    # pass: 'k'
+                    password_hash="$6$rounds=656000$36qujjj0IHhRm3s3$rP.NkdJslEaSDDZ0zrNyOQDnLpjZ.VK04YSQ7G7o1iuiIk2EQRvRWU/dfCY0Nd.bX4z5iuv8yiMCT1YkOW7UD0",
+                    )
+        session.add(user)
 
-        self._add_zone(get_zone1())
-        self._add_zone(get_zone2())
+    def seed_zones(self):
+        self._seed_zone(get_zone1())
+        self._seed_zone(get_zone2())
 
-    def _add_zone(self, zone_data):
+    def _seed_zone(self, zone_data):
         print(zone_data)
         zone = Zone(name=zone_data['name'], bkg_file=zone_data['bkg_file'])
         session.add(zone)

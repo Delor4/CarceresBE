@@ -1,50 +1,82 @@
 #!/usr/bin/env python
 import os
 
-from flask import send_file
+from flask import send_file, Flask
 from flask_cors import CORS
 from flask_restful import Api
 
-from classes.config import flask_app
+from classes.auth import get_auth_tokens, refresh_token
+from classes.config import config
 
-app = flask_app
+app = Flask(__name__)
+app.config.from_mapping(config)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 api = Api(app)
 
-from resources.user import UserListResource, UserResource
-from resources.place import PlaceListResource, PlaceResource
-from resources.zone import ZoneListResource, ZoneResource
-from resources.client import ClientListResource, ClientResource
-from resources.car import CarListResource, CarResource
-from resources.subscription import SubscriptionListResource, SubscriptionResource
+
+@app.route('/api/login')
+def login():
+    """
+    Authenticate (basic auth) and returns pair of access/refresh tokens.
+    """
+    return get_auth_tokens()
+
+
+@app.route('/api/refresh', methods=['POST'])
+def refresh():
+    """
+    Authenticate (refresh token) and returns new pair of access/refresh tokens.
+    """
+    return refresh_token()
+
+
+from resources.manage import UserManageResource, ClientManageResource
+
+api.add_resource(UserManageResource, '/api/user', endpoint='user_manage')
+api.add_resource(ClientManageResource, '/api/client', endpoint='client_manage')
+
+from resources.users import UserListResource, UserResource
 
 api.add_resource(UserListResource, '/api/users', endpoint='users')
 api.add_resource(UserResource, '/api/users/<string:id>', endpoint='user')
 
+from resources.clients import ClientListResource, ClientResource
+
 api.add_resource(ClientListResource, '/api/clients', endpoint='clients')
 api.add_resource(ClientResource, '/api/clients/<string:id>', endpoint='client')
+
+from resources.cars import CarListResource, CarResource
 
 api.add_resource(CarListResource, '/api/cars', endpoint='cars')
 api.add_resource(CarResource, '/api/cars/<string:id>', endpoint='car')
 
+from resources.zones import ZoneListResource, ZoneResource
+
 api.add_resource(ZoneListResource, '/api/zones', endpoint='zones')
 api.add_resource(ZoneResource, '/api/zones/<string:id>', endpoint='zone')
 
+from resources.places import PlaceListResource, PlaceResource
+
 api.add_resource(PlaceListResource, '/api/places', endpoint='places')
 api.add_resource(PlaceResource, '/api/places/<string:id>', endpoint='place')
+
+from resources.subscriptions import SubscriptionListResource, SubscriptionResource
 
 api.add_resource(SubscriptionListResource, '/api/subscriptions', endpoint='subscriptions')
 api.add_resource(SubscriptionResource, '/api/subscriptions/<string:id>', endpoint='subscription')
 
 if app.debug:
     from resources.seed import SeedResource
-if app.debug:
+
     api.add_resource(SeedResource, '/api/seed', endpoint='seed')
 
 
 # Everything not declared before (not a Flask route / API endpoint)...
 @app.route("/<path:path>")
 def route_frontend(path):
+    """
+    Returns frontend file if path is not backends.
+    """
     # ...could be a static file needed by the front end that
     # doesn't use the `static` path (like in `<script src="bundle.js">`)
     file_path = os.path.join(app.static_folder, path)

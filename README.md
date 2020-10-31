@@ -49,6 +49,21 @@ $ python app.py
     (Methods: `GET` `POST` `GET /<id>` `PUT /<id>` `DELETE /<id>`)
 - `/api/subscriptions`
     (Methods: `GET` `POST` `GET /<id>` `PUT /<id>` `DELETE /<id>`)
+- `/api/login`
+    (Methods: any)
 
-Don't forget add "Content-Type: application/json" header to your request!
+---
+Authorization
+-------------------
+
+To authorize send username and password (Basic auth) to `/api/login`.
+ ```
+$ curl -u user_name:user_pass http://<url>/api/login
+```
+In response you will get a token. Send token with request in `x-access-tokens` header.
+```
+$ curl -H "x-access-tokens: <token>" http://<url>/api/users/1
+```
+
+Don't forget add `Content-Type: application/json` header to your request!
 
