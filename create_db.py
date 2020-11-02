@@ -21,8 +21,8 @@ if __name__ == "__main__":
 
     # Make default user if needed
     session = sessionmaker(bind=engine)()
-    if session.query(models.User).count() == 0:
-        user = models.User(name='admin',
+    if session.query(models.user.User).count() == 0:
+        user = models.user.User(name='admin',
                            user_type=1,
                            # pass: 'carceres'
                            password_hash="$6$rounds=656000$qvRag7CybnVI6t78$CZMIiqioeKKrrHOHt9nfHyVnqs2JK69gYPbjFMHt"
