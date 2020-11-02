@@ -193,6 +193,8 @@ def token_required(f):
         data = _check_token(token)
 
         current_user = session.query(User).filter(User.id == data['id']).first()
+        if not current_user:
+            abort(401, message="no user")
         auth.user = current_user
 
         return f(*args, **kwargs)
