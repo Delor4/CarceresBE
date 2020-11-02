@@ -21,25 +21,35 @@ def _unpack(res, code=200, headers=None):
     if type(res) is Response:
         ret = make_response(res)
         header = ret.headers
-    else:
-        if headers is None:
-            headers = {}
-        ret = (res, code, headers)
-        header = headers
+        return ret, header
+
+    if type(res) is tuple:
+        return _unpack(*res)
+
+    if headers is None:
+        headers = {}
+    ret = (res, code, headers)
+    header = headers
     return ret, header
+
+
+def set_no_cache_header(header):
+    header['Last-Modified'] = formatdate(usegmt=True)
+    header['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    header['Pragma'] = 'no-cache'
+    header['Expires'] = '-1'
+    return header
 
 
 def nocache(view):
     """
     Decorator. Sets response headers.
     """
+
     @wraps(view)
     def no_cache(*args, **kwargs):
         ret, header = _unpack(view(*args, **kwargs))
-        header['Last-Modified'] = formatdate(usegmt=True)
-        header['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-        header['Pragma'] = 'no-cache'
-        header['Expires'] = '-1'
+        set_no_cache_header(header)
         return ret
 
     return update_wrapper(no_cache, view)
@@ -50,9 +60,10 @@ def set_last_modified(view):
     Decorator. Sets 'Last-Modified' header in response.
     Use with model object, before make response (e.g. @marshal_with evaluation).
     """
+
     @wraps(view)
     def _set_last_modified(*args, **kwargs):
-        ret, header = _unpack(*view(*args, **kwargs))
+        ret, header = _unpack(view(*args, **kwargs))
         header['Last-Modified'] = format_datetime(ret[0].updated_on.replace(tzinfo=timezone.utc),
                                                   usegmt=True)
         return ret
