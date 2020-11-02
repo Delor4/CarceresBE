@@ -147,6 +147,7 @@ class SeedResource(Resource):
     """
     Resources for 'seed' (/api/seed) endpoint.
     """
+
     def get(self):
         """
         Seed the database.
@@ -155,15 +156,9 @@ class SeedResource(Resource):
         self.seed_users()
 
         session.commit()
-        return {}, 200
+        return {'message': 'Database seeded.'}, 200
 
     def seed_users(self):
-        user = User(name='admin',
-                    user_type=1,
-                    # pass: 'carceres'
-                    password_hash='$6$rounds=656000$qvRag7CybnVI6t78$CZMIiqioeKKrrHOHt9nfHyVnqs2JK69gYPbjFMHt.lGvGw8BKliAlJCzc0WR1aGLlNM9bclSz5klaaUAbPUZh1',
-                    )
-        session.add(user)
         user = User(name='stroz',
                     user_type=2,
                     # pass: 's'
