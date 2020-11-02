@@ -11,7 +11,7 @@ class User(ModelBase):
 
     name = Column(String(193), unique=True)
     user_type = Column(Integer)  # see classes.auth.Rights
-    password_hash = Column(String(128))
+    password_hash = Column(String(128), default="<not set>")
     failed_logins = Column(Integer, default=0, nullable=False)
     blocked_since = Column(DateTime, nullable=True)
 

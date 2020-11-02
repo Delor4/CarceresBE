@@ -16,7 +16,7 @@ user_fields = {
     'name': fields.String,
     'user_type': fields.Integer,
     'uri': fields.Url('user', absolute=True),
-    'password_hash': fields.String,
+    # 'password_hash': fields.String,
     'client': NestedWithEmpty({
         'id': fields.Integer,
         'name': fields.String,
@@ -32,7 +32,7 @@ user_fields = {
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str)
 parser.add_argument('user_type', type=str)
-parser.add_argument('password', type=str, required=True, nullable=False)
+parser.add_argument('password', type=str, required=False, nullable=False)
 
 
 class UserResource(SingleResource):
@@ -71,7 +71,8 @@ class UserResource(SingleResource):
         user = self.get_model(id)
         user.name = parsed_args['name']
         user.user_type = parsed_args['user_type']
-        user.hash_password(parsed_args['password'])
+        if parsed_args['password'] is not None:
+            user.hash_password(parsed_args['password'])
         return self.finalize_put_req(user)
 
 
@@ -97,7 +98,8 @@ class UserListResource(ResourceBase):
         """
         parsed_args = parser.parse_args()
         user = User(name=parsed_args['name'], user_type=parsed_args['user_type'])
-        user.hash_password(parsed_args['password'])
+        if parsed_args['password'] is not None:
+            user.hash_password(parsed_args['password'])
         session.add(user)
         session.commit()
         return user, 201, self.make_response_headers(location=url_for('user', id=user.id, _external=True))
