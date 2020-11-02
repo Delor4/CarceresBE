@@ -32,7 +32,7 @@ class ListResource(ResourceBase):
         Save model in database. Return to client with appropriate status code and headers.
         """
         session.add(model)
-        session.commit()
+        self.try_session_commit()
         return model, 201, self.make_response_headers(location=url_for(self.model_name, id=model.id, _external=True))
 
     def list_view(self):

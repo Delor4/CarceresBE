@@ -1,3 +1,4 @@
+from flask import url_for
 from flask_restful import abort
 
 from classes.ResourceBase import ResourceBase
@@ -38,8 +39,8 @@ class SingleResource(ResourceBase):
         """
         model = self.get_model(model_id)
         session.delete(model)
-        session.commit()
-        return {}, 204
+        self.try_session_commit()
+        return {}, 204, self.make_response_headers(location=url_for(self.model_name + 's', _external=True))
 
     @nocache
     def finalize_put_req(self, model):
@@ -47,5 +48,5 @@ class SingleResource(ResourceBase):
         Save model in database. Return to client with appropriate status code and headers.
         """
         session.add(model)
-        session.commit()
+        self.try_session_commit()
         return model, 201
