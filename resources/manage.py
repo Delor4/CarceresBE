@@ -3,8 +3,8 @@ from flask_restful import marshal_with
 from flask_restful import reqparse
 
 from classes.NestedWidthEmpty import NestedWithEmpty
-from classes.ResourceBase import ResourceBase
-from classes.auth import token_required, auth, nocache, set_last_modified
+from classes.SingleResource import SingleResource
+from classes.auth import token_required, auth, nocache
 from db import session
 from models.client import Client
 
@@ -50,7 +50,7 @@ parser_client.add_argument('city', type=str, required=False, nullable=True)
 parser_client.add_argument('phone', type=str, required=False, nullable=True)
 
 
-class UserManageResource(ResourceBase):
+class UserManageResource(SingleResource):
     """
     Resources for 'user_manage' (/api/user) endpoint.
     """
@@ -58,6 +58,7 @@ class UserManageResource(ResourceBase):
     @token_required
     @nocache
     @marshal_with(user_fields)
+    # @set_last_modified
     def get(self):
         """
         Returns the data of the currently authenticated user.
@@ -65,7 +66,6 @@ class UserManageResource(ResourceBase):
         return auth.user
 
     @token_required
-    @nocache
     @marshal_with(user_fields)
     def put(self):
         """
@@ -73,12 +73,10 @@ class UserManageResource(ResourceBase):
         """
         parsed_args = parser_user.parse_args()
         auth.user.hash_password(parsed_args['password'])
-        session.add(auth.user)
-        session.commit()
-        return auth.user, 201
+        self.finalize_put_req(auth.user)
 
 
-class ClientManageResource(ResourceBase):
+class ClientManageResource(SingleResource):
     """
     Resources for 'client_manage' (/api/client) endpoint.
     """
@@ -86,6 +84,7 @@ class ClientManageResource(ResourceBase):
     @token_required
     @nocache
     @marshal_with(client_fields)
+    # @set_last_modified
     def get(self):
         """
         Returns the client data of the currently authenticated user.
@@ -95,7 +94,6 @@ class ClientManageResource(ResourceBase):
         return auth.user.client
 
     @token_required
-    @nocache
     @marshal_with(client_fields)
     def put(self):
         """
@@ -115,6 +113,4 @@ class ClientManageResource(ResourceBase):
             client.city = parsed_args['city']
         if parsed_args['phone'] is not None:
             client.phone = parsed_args['phone']
-        session.add(client)
-        session.commit()
-        return client, 201
+        self.finalize_put_req(auth.client)
