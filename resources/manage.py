@@ -11,6 +11,8 @@ from models.client import Client
 user_fields = {
     'name': fields.String,
     'user_type': fields.Integer,
+    'failed_logins': fields.Integer,
+    'blocked_since': fields.DateTime,
     'uri': fields.Url('user_manage', absolute=True),
     'client': NestedWithEmpty({
         'name': fields.String,
@@ -36,6 +38,8 @@ client_fields = {
     'user': NestedWithEmpty({
         'name': fields.String,
         'user_type': fields.Integer,
+        'failed_logins': fields.Integer,
+        'blocked_since': fields.DateTime,
         'uri': fields.Url('user_manage', absolute=True),
     }, allow_null=True),
 }

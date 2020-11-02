@@ -12,6 +12,8 @@ user_fields = {
     'id': fields.Integer,
     'name': fields.String,
     'user_type': fields.Integer,
+    'failed_logins': fields.Integer,
+    'blocked_since': fields.DateTime,
     'uri': fields.Url('user', absolute=True),
     # 'password_hash': fields.String,
     'client': NestedWithEmpty({
@@ -28,7 +30,7 @@ user_fields = {
 
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str)
-parser.add_argument('user_type', type=str)
+parser.add_argument('user_type', type=int)
 parser.add_argument('password', type=str, required=False, nullable=False)
 
 
