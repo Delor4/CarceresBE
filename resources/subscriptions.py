@@ -1,13 +1,10 @@
-from flask import url_for
 from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse, inputs
 
-from classes.ResourceBase import ResourceBase
+from classes.ListResource import ListResource
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights, nocache
-from classes.views import list_view
-from db import session
+from classes.auth import access_required, Rights
 from models.subscription import Subscription
 
 subscription_fields = {
@@ -37,7 +34,7 @@ class SubscriptionResource(SingleResource):
     def __init__(self):
         super().__init__()
         self.model_class = Subscription
-        self.model_name = "Subscription"
+        self.model_name = "subscription"
         self.marshal_fields = subscription_fields
 
     @access_required(Rights.MOD)
@@ -71,20 +68,25 @@ class SubscriptionResource(SingleResource):
         return self.finalize_put_req(subscription)
 
 
-class SubscriptionListResource(ResourceBase):
+class SubscriptionListResource(ListResource):
     """
     Resources for 'subscriptions' (/api/subscriptions) endpoint.
     """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = Subscription
+        self.model_name = "subscription"
+        self.marshal_fields = subscription_fields
 
     @access_required(Rights.MOD)
     def get(self):
         """
         Returns data of all subscriptions.
         """
-        return list_view(Subscription, subscription_fields, url_for(self.endpoint, _external=True))
+        return self.process_get_req()
 
     @access_required(Rights.MOD)
-    @nocache
     @marshal_with(subscription_fields)
     def post(self):
         """
@@ -97,7 +99,4 @@ class SubscriptionListResource(ResourceBase):
                                     place_id=parsed_args['place_id'],
                                     car_id=parsed_args['car_id']
                                     )
-        session.add(subscription)
-        session.commit()
-        return subscription, 201, self.make_response_headers(location=url_for('subscription', id=subscription.id,
-                                                                              _external=True))
+        return self.finalize_post_req(subscription)

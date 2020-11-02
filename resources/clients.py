@@ -1,13 +1,11 @@
-from flask import url_for
 from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
+from classes.ListResource import ListResource
 from classes.NestedWidthEmpty import NestedWithEmpty
-from classes.ResourceBase import ResourceBase
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights, nocache
-from classes.views import list_view
+from classes.auth import access_required, Rights
 from db import session
 from models.client import Client
 from models.user import User
@@ -91,20 +89,24 @@ class ClientResource(SingleResource):
         return self.finalize_put_req(client)
 
 
-class ClientListResource(ResourceBase):
+class ClientListResource(ListResource):
     """
     Resources for 'clients' (/api/clients/<id>) endpoint.
     """
+    def __init__(self):
+        super().__init__()
+        self.model_class = Client
+        self.model_name = "client"
+        self.marshal_fields = client_fields
 
     @access_required(Rights.MOD)
     def get(self):
         """
         Returns data of all clients.
         """
-        return list_view(Client, client_fields, url_for(self.endpoint, _external=True))
+        return self.process_get_req()
 
     @access_required(Rights.MOD)
-    @nocache
     @marshal_with(client_fields)
     def post(self):
         """
@@ -122,6 +124,4 @@ class ClientListResource(ResourceBase):
         if user is not None:
             user.client = client
             client.user = user
-        session.add(client)
-        session.commit()
-        return client, 201, self.make_response_headers(location=url_for('client', id=client.id, _external=True))
+        return self.finalize_post_req(client)

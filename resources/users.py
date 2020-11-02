@@ -1,14 +1,11 @@
-from flask import url_for
 from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
+from classes.ListResource import ListResource
 from classes.NestedWidthEmpty import NestedWithEmpty
-from classes.ResourceBase import ResourceBase
 from classes.SingleResource import SingleResource
-from classes.auth import token_required, access_required, Rights, nocache, set_last_modified
-from classes.views import list_view
-from db import session
+from classes.auth import token_required, access_required, Rights
 from models.user import User
 
 user_fields = {
@@ -43,7 +40,7 @@ class UserResource(SingleResource):
     def __init__(self):
         super().__init__()
         self.model_class = User
-        self.model_name = "User"
+        self.model_name = "user"
         self.marshal_fields = user_fields
 
     @access_required(Rights.MOD)
@@ -76,10 +73,16 @@ class UserResource(SingleResource):
         return self.finalize_put_req(user)
 
 
-class UserListResource(ResourceBase):
+class UserListResource(ListResource):
     """
     Resources for 'users' (/api/users) endpoint.
     """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = User
+        self.model_name = "user"
+        self.marshal_fields = user_fields
 
     @access_required(Rights.MOD)
     @token_required
@@ -87,10 +90,9 @@ class UserListResource(ResourceBase):
         """
         Returns data of all users.
         """
-        return list_view(User, user_fields, url_for(self.endpoint, _external=True))
+        return self.process_get_req()
 
     @access_required(Rights.ADMIN)
-    @nocache
     @marshal_with(user_fields)
     def post(self):
         """
@@ -100,6 +102,4 @@ class UserListResource(ResourceBase):
         user = User(name=parsed_args['name'], user_type=parsed_args['user_type'])
         if parsed_args['password'] is not None:
             user.hash_password(parsed_args['password'])
-        session.add(user)
-        session.commit()
-        return user, 201, self.make_response_headers(location=url_for('user', id=user.id, _external=True))
+        return self.finalize_post_req(user)

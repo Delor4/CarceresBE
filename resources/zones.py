@@ -1,13 +1,10 @@
-from flask import url_for
 from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
-from classes.ResourceBase import ResourceBase
+from classes.ListResource import ListResource
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights, nocache
-from classes.views import list_view
-from db import session
+from classes.auth import access_required, Rights
 from models.zone import Zone
 from resources.places import place_fields
 
@@ -32,7 +29,7 @@ class ZoneResource(SingleResource):
     def __init__(self):
         super().__init__()
         self.model_class = Zone
-        self.model_name = "Zone"
+        self.model_name = "zone"
         self.marshal_fields = zone_fields
 
     @access_required(Rights.USER)
@@ -63,20 +60,25 @@ class ZoneResource(SingleResource):
         return self.finalize_put_req(zone)
 
 
-class ZoneListResource(ResourceBase):
+class ZoneListResource(ListResource):
     """
     Resources for 'zones' (/api/zones) endpoint.
     """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = Zone
+        self.model_name = "zone"
+        self.marshal_fields = zone_fields
 
     @access_required(Rights.USER)
     def get(self):
         """
         Returns data of all zones.
         """
-        return list_view(Zone, zone_fields, url_for(self.endpoint, _external=True))
+        return self.process_get_req()
 
     @access_required(Rights.ADMIN)
-    @nocache
     @marshal_with(zone_fields)
     def post(self):
         """
@@ -84,6 +86,4 @@ class ZoneListResource(ResourceBase):
         """
         parsed_args = parser.parse_args()
         zone = Zone(name=parsed_args['name'], bkg_file=parsed_args['bkg_file'])
-        session.add(zone)
-        session.commit()
-        return zone, 201, self.make_response_headers(location=url_for('zone', id=zone.id, _external=True))
+        return self.finalize_post_req(zone)

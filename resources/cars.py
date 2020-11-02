@@ -1,14 +1,11 @@
-from flask import url_for
-from flask_restful import Resource
 from flask_restful import abort
 from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
-from classes.ResourceBase import ResourceBase
+from classes.ListResource import ListResource
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights, nocache
-from classes.views import list_view
+from classes.auth import access_required, Rights
 from db import session
 from models.car import Car
 from models.client import Client
@@ -33,7 +30,7 @@ class CarResource(SingleResource):
     def __init__(self):
         super().__init__()
         self.model_class = Car
-        self.model_name = "Car"
+        self.model_name = "car"
         self.marshal_fields = car_fields
 
     @access_required(Rights.MOD)
@@ -68,20 +65,24 @@ class CarResource(SingleResource):
         return self.finalize_put_req(car)
 
 
-class CarListResource(ResourceBase):
+class CarListResource(ListResource):
     """
     Resources for 'cars' (/api/cars) endpoint.
     """
+    def __init__(self):
+        super().__init__()
+        self.model_class = Car
+        self.model_name = "car"
+        self.marshal_fields = car_fields
 
     @access_required(Rights.MOD)
     def get(self):
         """
         Returns data of all cars.
         """
-        return list_view(Car, car_fields, url_for(self.endpoint, _external=True))
+        return self.process_get_req()
 
     @access_required(Rights.MOD)
-    @nocache
     @marshal_with(car_fields)
     def post(self):
         """
@@ -91,6 +92,4 @@ class CarListResource(ResourceBase):
         car = Car(plate=parsed_args['plate'], client_id=parsed_args['client_id'])
         client = session.query(Client).filter(Client.id == parsed_args['client_id']).first()
         client.cars.append(car)
-        session.add(car)
-        session.commit()
-        return car, 201, self.make_response_headers(location=url_for('car', id=car.id, _external=True))
+        return self.finalize_post_req(car)

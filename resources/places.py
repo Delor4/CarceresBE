@@ -1,13 +1,11 @@
-from flask import url_for
 from flask_restful import abort
 from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
-from classes.ResourceBase import ResourceBase
+from classes.ListResource import ListResource
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights, nocache
-from classes.views import list_view
+from classes.auth import access_required, Rights
 from db import session
 from models.place import Place
 from models.zone import Zone
@@ -38,7 +36,7 @@ class PlaceResource(SingleResource):
     def __init__(self):
         super().__init__()
         self.model_class = Place
-        self.model_name = "Place"
+        self.model_name = "place"
         self.marshal_fields = place_fields
 
     @access_required(Rights.USER)
@@ -76,20 +74,25 @@ class PlaceResource(SingleResource):
         return self.finalize_put_req(place)
 
 
-class PlaceListResource(ResourceBase):
+class PlaceListResource(ListResource):
     """
     Resources for 'places' (/api/places/<id>) endpoint.
     """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = Place
+        self.model_name = "place"
+        self.marshal_fields = place_fields
 
     @access_required(Rights.USER)
     def get(self):
         """
         Returns data of all places.
         """
-        return list_view(Place, place_fields, url_for(self.endpoint, _external=True))
+        return self.process_get_req()
 
     @access_required(Rights.ADMIN)
-    @nocache
     @marshal_with(place_fields)
     def post(self):
         """
@@ -100,6 +103,4 @@ class PlaceListResource(ResourceBase):
                       pos_x=parsed_args['pos_x'], pos_y=parsed_args['pos_y'])
         zone = session.query(Zone).filter(Zone.id == parsed_args['zone_id']).first()
         zone.places.append(place)
-        session.add(place)
-        session.commit()
-        return place, 201, self.make_response_headers(location=url_for('place', id=place.id, _external=True))
+        return self.finalize_post_req(place)

@@ -20,7 +20,7 @@ class SingleResource(ResourceBase):
         """
         model = session.query(self.model_class).filter(self.model_class.id == model_id).first()
         if not model:
-            abort(404, message=f"{self.model_name} {model_id} doesn't exist")
+            abort(404, message=f"{self.model_name.capitalize()} {model_id} doesn't exist")
         return model
 
     @set_last_modified
@@ -29,7 +29,7 @@ class SingleResource(ResourceBase):
         Return model from the database. 404 when model is absent.
         """
         model = self.get_model(model_id)
-        return model, 200, self.make_response_headers(model)
+        return model, 200
 
     @nocache
     def process_delete_req(self, model_id):
@@ -48,4 +48,4 @@ class SingleResource(ResourceBase):
         """
         session.add(model)
         session.commit()
-        return model, 201, self.make_response_headers(model)
+        return model, 201
