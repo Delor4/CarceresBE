@@ -118,6 +118,8 @@ def refresh_token():
     token = json['refresh_token']
     data = _check_token(token, 'refresh')
     current_user = session.query(User).filter(User.id == data['id']).first()
+    if not current_user:
+        abort(401, message="no user")
     auth.user = current_user
 
     return _new_auth_tokens(auth.user.id)
