@@ -5,7 +5,7 @@ from flask_restful import reqparse
 
 from classes.ListResource import ListResource
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights
+from classes.auth import access_required, Rights, token_required, auth
 from db import session
 from models.car import Car
 from models.client import Client
@@ -69,6 +69,7 @@ class CarListResource(ListResource):
     """
     Resources for 'cars' (/api/cars) endpoint.
     """
+
     def __init__(self):
         super().__init__()
         self.model_class = Car
@@ -93,3 +94,24 @@ class CarListResource(ListResource):
         client = session.query(Client).filter(Client.id == parsed_args['client_id']).first()
         client.cars.append(car)
         return self.finalize_post_req(car)
+
+
+class CarOwnResource(ListResource):
+    """
+    Resources for 'own_cars' (/api/client/cars) endpoint.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = Car
+        self.model_name = "car"
+        self.marshal_fields = car_fields
+
+    @token_required
+    def get(self):
+        """
+        Returns the cars data of the currently authenticated client.
+        """
+        if not auth.user.client:
+            abort(404, message="Client doesn't exist")
+        return self.process_get_req(session.query(Car).filter(Car.client_id == auth.user.client.id))
