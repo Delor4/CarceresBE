@@ -17,6 +17,7 @@ place_fields = {
     'name': fields.String,
     'pos_x': fields.Float,
     'pos_y': fields.Float,
+    'occupied': fields.Boolean,
     'uri': fields.Url('place', absolute=True),
 }
 

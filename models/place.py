@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import Column, ForeignKey, UniqueConstraint
 from sqlalchemy import Integer, String, Float
 from sqlalchemy.orm import relationship
@@ -17,3 +19,11 @@ class Place(ModelBase):
     subscriptions = relationship("Subscription", backref="place.id")
 
     UniqueConstraint('nr', 'zone_id', name='uniq_place_1')
+
+    @property
+    def occupied(self):
+        now = datetime.utcnow()
+        for subs in self.subscriptions:
+            if subs.end >= now:
+                return True
+        return False
