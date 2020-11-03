@@ -19,7 +19,7 @@ subscription_fields = {
 
 parser = reqparse.RequestParser()
 # parser.add_argument('start', type=lambda x: datetime.strptime(x, '%Y-%m-%dT%H:%M:%S'))
-parser.add_argument('start', type=inputs.datetime_from_iso8601, required=True, nullable=False)
+parser.add_argument('start', type=inputs.datetime_from_iso8601, required=False, nullable=False)
 parser.add_argument('end', type=inputs.datetime_from_iso8601, required=True, nullable=False)
 parser.add_argument('type', type=int, required=True, nullable=False)
 parser.add_argument('place_id', type=int, required=True, nullable=False)
@@ -60,7 +60,8 @@ class SubscriptionResource(SingleResource):
         """
         parsed_args = parser.parse_args()
         subscription = self.get_model(id)
-        subscription.start = parsed_args['start']
+        if parsed_args['start']:
+            subscription.start = parsed_args['start']
         subscription.end = parsed_args['end']
         subscription.type = parsed_args['type']
         subscription.place_id = parsed_args['place_id']
@@ -93,10 +94,12 @@ class SubscriptionListResource(ListResource):
         Create new subscription.
         """
         parsed_args = parser.parse_args()
-        subscription = Subscription(start=parsed_args['start'],
-                                    end=parsed_args['end'],
-                                    type=parsed_args['type'],
-                                    place_id=parsed_args['place_id'],
-                                    car_id=parsed_args['car_id']
-                                    )
+        subscription = Subscription(
+            end=parsed_args['end'],
+            type=parsed_args['type'],
+            place_id=parsed_args['place_id'],
+            car_id=parsed_args['car_id']
+        )
+        if parsed_args['start']:
+            subscription.start = parsed_args['start']
         return self.finalize_post_req(subscription)
