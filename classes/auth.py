@@ -196,6 +196,7 @@ def token_required(f):
         if not current_user:
             abort(401, message="no user")
         auth.user = current_user
+        session.flush()
 
         return f(*args, **kwargs)
 

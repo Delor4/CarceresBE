@@ -112,6 +112,7 @@ class CarOwnResource(ListResource):
         """
         Returns the cars data of the currently authenticated client.
         """
-        if not auth.user.client:
+        client = session.query(Client).filter(Client.user_id == auth.user.id).first()
+        if not client:
             abort(404, message="Client doesn't exist")
-        return self.process_get_req(session.query(Car).filter(Car.client_id == auth.user.client.id))
+        return self.process_get_req(session.query(Car).filter(Car.client_id == client.id))

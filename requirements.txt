@@ -1,6 +1,6 @@
 flask
 flask-restful
-sqlalchemy
+flask_sqlalchemy
 flask_cors
 flask_script
 flask_migrate

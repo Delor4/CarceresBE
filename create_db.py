@@ -23,10 +23,10 @@ if __name__ == "__main__":
     session = sessionmaker(bind=engine)()
     if session.query(models.user.User).count() == 0:
         user = models.user.User(name='admin',
-                           user_type=1,
-                           # pass: 'carceres'
-                           password_hash="$6$rounds=656000$qvRag7CybnVI6t78$CZMIiqioeKKrrHOHt9nfHyVnqs2JK69gYPbjFMHt"
-                                         ".lGvGw8BKliAlJCzc0WR1aGLlNM9bclSz5klaaUAbPUZh1",
-                           )
+                                user_type=1,
+                                # pass: 'carceres'
+                                password_hash="$6$rounds=656000$qvRag7CybnVI6t78$CZMIiqioeKKrrHOHt9nfHyVnqs2JK69gYPbjFMHt"
+                                              ".lGvGw8BKliAlJCzc0WR1aGLlNM9bclSz5klaaUAbPUZh1",
+                                )
         session.add(user)
         session.commit()
