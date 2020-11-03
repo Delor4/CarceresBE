@@ -60,10 +60,11 @@ from resources.places import PlaceListResource, PlaceResource
 api.add_resource(PlaceListResource, '/api/places', endpoint='places')
 api.add_resource(PlaceResource, '/api/places/<string:id>', endpoint='place')
 
-from resources.subscriptions import SubscriptionListResource, SubscriptionResource
+from resources.subscriptions import SubscriptionListResource, SubscriptionResource, SubscriptionOwnResource
 
 api.add_resource(SubscriptionListResource, '/api/subscriptions', endpoint='subscriptions')
 api.add_resource(SubscriptionResource, '/api/subscriptions/<string:id>', endpoint='subscription')
+api.add_resource(SubscriptionOwnResource, '/api/client/subscriptions', endpoint='own_subscriptions')
 
 if app.debug:
     from resources.seed import SeedResource

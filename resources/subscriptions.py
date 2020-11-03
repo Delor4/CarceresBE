@@ -1,10 +1,12 @@
-from flask_restful import fields
+from flask_restful import fields, abort
 from flask_restful import marshal_with
 from flask_restful import reqparse, inputs
 
 from classes.ListResource import ListResource
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights
+from classes.auth import access_required, Rights, token_required, auth
+from db import session
+from models.car import Car
 from models.subscription import Subscription
 
 subscription_fields = {
@@ -103,3 +105,26 @@ class SubscriptionListResource(ListResource):
         if parsed_args['start']:
             subscription.start = parsed_args['start']
         return self.finalize_post_req(subscription)
+
+
+class SubscriptionOwnResource(ListResource):
+    """
+    Resources for 'own_subscriptions' (/api/client/subscriptions) endpoint.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = Subscription
+        self.model_name = "subscription"
+        self.marshal_fields = subscription_fields
+
+    @token_required
+    def get(self):
+        """
+        Returns the subscriptions data of the currently authenticated client.
+        """
+        if not auth.user.client:
+            abort(404, message="Client doesn't exist")
+        return self.process_get_req(session.query(Subscription)
+                                    .join(Car).filter(Subscription.car_id == Car.id)
+                                    .filter(Car.client_id == auth.user.client.id))

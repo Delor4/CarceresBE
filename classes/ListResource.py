@@ -20,11 +20,11 @@ class ListResource(ResourceBase):
         self.model_name = None
         self.marshal_fields = None
 
-    def process_get_req(self):
+    def process_get_req(self, models=None):
         """
         Return list of models. Apply pagination and sorting args from request query.
         """
-        return self.list_view()
+        return self.list_view(models)
 
     @nocache
     def finalize_post_req(self, model):
@@ -35,20 +35,24 @@ class ListResource(ResourceBase):
         self.try_session_commit()
         return model, 201, self.make_response_headers(location=url_for(self.model_name, id=model.id, _external=True))
 
-    def list_view(self):
+    def list_view(self, models):
         sort_params, sort_arg = self._extract_sort_params()
         return jsonify(self.get_paginated_list(
+            models,
             sort_params,
             sort_arg=sort_arg,
             start=int(request.args.get('start', 1)),
             limit=int(request.args.get('limit', config['DEFAULT_PAGE_LIMIT'])),
         ))
 
-    def get_paginated_list(self, sort_params, sort_arg, start, limit):
+    def get_paginated_list(self, models, sort_params, sort_arg, start, limit):
         # Pagination based on:
         # https://aviaryan.com/blog/gsoc/paginated-apis-flask
 
-        obj_list = session.query(self.model_class).order_by(*sort_params)
+        if models is not None:
+            obj_list = models
+        else:
+            obj_list = session.query(self.model_class).order_by(*sort_params)
 
         # check if page exists
         count = obj_list.count()
