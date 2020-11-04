@@ -1,9 +1,54 @@
 from flask_restful import Resource
 
 from db import session
+from models.car import Car
+from models.client import Client
 from models.place import Place
 from models.user import User
 from models.zone import Zone
+
+users = [
+    {'name': 'stroz',
+     'user_type': 2,
+     # pass: 's'
+     'password_hash': "$6$rounds=656000$whFc0DVCMM6peC4x$bvgxj5eShNGWkI2e8E.hTXe2TOfiSBCgaIWfJCrEOD17uI7XPzkiqcvf.BX2"
+                      "/yhWfEwCHRlTzT3gITShKwA8a/",
+     },
+    {'name': 'klient',
+     'user_type': 3,
+     # pass: 'k'
+     'password_hash': "$6$rounds=656000$36qujjj0IHhRm3s3$rP.NkdJslEaSDDZ0zrNyOQDnLpjZ.VK04YSQ7G7o1iuiIk2EQRvRWU"
+                      "/dfCY0Nd.bX4z5iuv8yiMCT1YkOW7UD0",
+     },
+]
+
+clients = [
+    {
+        "name": "Jan",
+        "surname": "Kowalski",
+        "user_id": 3
+    },
+    {
+        "name": "Antoni",
+        "surname": "Nowak",
+        "user_id": 1
+    },
+]
+
+cars = [
+    {
+        'plate': "POL 0001",
+        'client_id': 1
+    },
+    {
+        'plate': "POL 0002",
+        'client_id': 1
+    },
+    {
+        'plate': "POL 0003",
+        'client_id': 2
+    },
+]
 
 
 def get_zone1():
@@ -11,15 +56,15 @@ def get_zone1():
         'name': "Strefa 1",
         'bkg_file': "mapa_parkingu_zone1.png",
         'places': [
-            [10, 18],
-            [14, 15],
-            [18, 11],
-            [22, 8],
-            [26, 4],
+            [10, 18, 'Górne'],
+            [14, 15, 'Górne'],
+            [18, 11, 'Górne'],
+            [22, 8, 'Górne'],
+            [26, 4, 'Górne'],
 
-            [2, 39],
-            [3, 44],
-            [4, 50],
+            [2, 39, 'Lewe'],
+            [3, 44, 'Lewe'],
+            [4, 50, 'Lewe'],
 
             [25, 34],
             [29, 33],
@@ -64,17 +109,17 @@ def get_zone1():
             [61, 58],
             [65, 57],
 
-            [67, 78],
-            [62, 79],
-            [58, 80],
-            [54, 81],
-            [49, 82],
-            [44, 83],
-            [40, 84],
-            [35, 85],
-            [31, 86],
-            [26, 87],
-            [21, 88],
+            [67, 78, 'Dolne'],
+            [62, 79, 'Dolne'],
+            [58, 80, 'Dolne'],
+            [54, 81, 'Dolne'],
+            [49, 82, 'Dolne'],
+            [44, 83, 'Dolne'],
+            [40, 84, 'Dolne'],
+            [35, 85, 'Dolne'],
+            [31, 86, 'Dolne'],
+            [26, 87, 'Dolne'],
+            [21, 88, 'Dolne'],
         ]
     }
 
@@ -154,34 +199,54 @@ class SeedResource(Resource):
         """
         self.seed_zones()
         self.seed_users()
+        self.seed_clients()
+        self.seed_cars()
 
         session.commit()
         return {'message': 'Database seeded.'}, 200
 
     def seed_users(self):
-        user = User(name='stroz',
-                    user_type=2,
-                    # pass: 's'
-                    password_hash="$6$rounds=656000$whFc0DVCMM6peC4x$bvgxj5eShNGWkI2e8E.hTXe2TOfiSBCgaIWfJCrEOD17uI7XPzkiqcvf.BX2/yhWfEwCHRlTzT3gITShKwA8a/",
-                    )
-        session.add(user)
-        user = User(name='klient',
-                    user_type=3,
-                    # pass: 'k'
-                    password_hash="$6$rounds=656000$36qujjj0IHhRm3s3$rP.NkdJslEaSDDZ0zrNyOQDnLpjZ.VK04YSQ7G7o1iuiIk2EQRvRWU/dfCY0Nd.bX4z5iuv8yiMCT1YkOW7UD0",
-                    )
-        session.add(user)
+        for u in users:
+            user = User(
+                name=u['name'],
+                user_type=u['user_type'],
+                password_hash=u['password_hash'],
+            )
+            session.add(user)
 
     def seed_zones(self):
         self._seed_zone(get_zone1())
         self._seed_zone(get_zone2())
 
     def _seed_zone(self, zone_data):
-        print(zone_data)
         zone = Zone(name=zone_data['name'], bkg_file=zone_data['bkg_file'])
         session.add(zone)
 
         for index, pos in enumerate(zone_data['places']):
-            place = Place(nr=index + 1, zone_id=zone.id, name=None, pos_x=pos[0], pos_y=pos[1])
+            place = Place(nr=index + 1,
+                          zone_id=zone.id,
+                          name=pos[2] if len(pos) > 2 else None,
+                          pos_x=pos[0],
+                          pos_y=pos[1])
             zone.places.append(place)
             session.add(place)
+
+    def seed_clients(self):
+        for c in clients:
+            client = Client(
+                address=c.get('address', None),
+                city=c.get('city', None),
+                phone=c.get('phone', None),
+                name=c['name'],
+                surname=c['surname'],
+                user_id=c['user_id'],
+            )
+            session.add(client)
+
+    def seed_cars(self):
+        for c in cars:
+            car = Car(
+                plate=c['plate'],
+                client_id=c['client_id'],
+            )
+            session.add(car)
