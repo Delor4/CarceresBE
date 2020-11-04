@@ -1,8 +1,14 @@
 SQLALCHEMY_TRACK_MODIFICATIONS = True
+
 SQLALCHEMY_DATABASE_URI = 'sqlite:///./carceres.db'
+# Sample URI for mysql database
+# SQLALCHEMY_DATABASE_URI = 'mysql://<user>:<password>@<host>/<database>'
+
 BUNDLE_ERRORS = True
+
 DEBUG = True
 SECRET_KEY = 'Very secret string. Change this on production!!!'
+
 # in seconds
 # 600   = 10 minutes
 # 3600  = 1 hour
@@ -12,7 +18,7 @@ SECRET_KEY = 'Very secret string. Change this on production!!!'
 SECRET_ACCESS_KEY_EXPIRATION = 3600
 SECRET_REFRESH_KEY_EXPIRATION = 2592000
 
-# Alowed failed logins
+# Allowed failed logins
 AUTOBLOCKADE_ATTEMPTS = 5
 # Time in minutes
 AUTOBLOCKADE_TIME = 10

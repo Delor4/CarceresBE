@@ -9,3 +9,7 @@ passlib
 
 itsdangerous
 alembic
+
+# Mysql support.
+# mysql_connector
+# mysqlclient
