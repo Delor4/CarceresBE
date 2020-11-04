@@ -100,7 +100,17 @@ class SubscriptionListResource(ListResource):
         """
         Create new subscription.
         """
+        # Checks
         parsed_args = parser.parse_args()
+        car = session.query(Car).filter(Car.id == parsed_args['car_id']).first()
+        if not car:
+            abort(400, message="No car.")
+        place = session.query(Place).filter(Place.id == parsed_args['place_id']).first()
+        if not place or place.occupied:
+            abort(400, message="Place not allowed.")
+        if parsed_args['end'] <= datetime.utcnow().replace(tzinfo=pytz.UTC):
+            abort(400, message="End date in past.")
+
         subscription = Subscription(
             end=parsed_args['end'],
             type=parsed_args['type'],
