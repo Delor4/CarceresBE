@@ -1,4 +1,4 @@
-from flask_restful import fields
+from flask_restful import fields, abort
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
@@ -50,7 +50,7 @@ class ClientResource(SingleResource):
     def __init__(self):
         super().__init__()
         self.model_class = Client
-        self.model_name = "Client"
+        self.model_name = "client"
         self.marshal_fields = client_fields
 
     @access_required(Rights.MOD)
@@ -76,16 +76,24 @@ class ClientResource(SingleResource):
         """
         parsed_args = parser.parse_args()
         client = self.get_model(id)
+
+        if not parsed_args['name']:
+            abort(400, message="Name not provided.")
         client.name = parsed_args['name']
+
+        if not parsed_args['surname']:
+            abort(400, message="Surname not provided.")
         client.surname = parsed_args['surname']
+
         client.address = parsed_args['address']
         client.city = parsed_args['city']
-        client.phone = parsed_args['phone'],
+        client.phone = parsed_args['phone']
+
         client.user_id = parsed_args['user_id']
         user = session.query(User).filter(User.id == parsed_args['user_id']).first()
         if user is not None:
             user.client = client
-            client.user.append(user)
+            client.user = user
         return self.finalize_put_req(client)
 
 
@@ -113,6 +121,11 @@ class ClientListResource(ListResource):
         Create new client.
         """
         parsed_args = parser.parse_args()
+        if not parsed_args['name']:
+            abort(400, message="Name not provided.")
+        if not parsed_args['surname']:
+            abort(400, message="Surname not provided.")
+
         client = Client(name=parsed_args['name'],
                         surname=parsed_args['surname'],
                         address=parsed_args['address'],
@@ -120,6 +133,7 @@ class ClientListResource(ListResource):
                         phone=parsed_args['phone'],
                         user_id=parsed_args['user_id'],
                         )
+
         user = session.query(User).filter(User.id == parsed_args['user_id']).first()
         if user is not None:
             user.client = client
