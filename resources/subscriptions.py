@@ -193,4 +193,12 @@ class SubscriptionOwnResource(ListResource):
             place_id=place.id,
             car_id=car.id
         )
+        session.add(subscription)
+        self.try_session_commit()
+        # make new payment for subscription
+        payment = Payment(sale_date=datetime.utcnow().replace(tzinfo=pytz.UTC),
+                          price=calc_price(subscription.start, subscription.end),
+                          tax=calc_tax(),
+                          subscription_id=subscription.id)
+        session.add(payment)
         return self.finalize_post_req(subscription)
