@@ -15,3 +15,5 @@ class Subscription(ModelBase):
 
     place_id = Column(Integer, ForeignKey("places.id"), nullable=False)
     car_id = Column(Integer, ForeignKey("cars.id"), nullable=False)
+    invoice_id = Column(Integer, ForeignKey("invoices.id"))
+    parking_card_id = Column(Integer, ForeignKey("parking_cards.id"))
