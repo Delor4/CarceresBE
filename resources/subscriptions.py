@@ -6,6 +6,7 @@ from flask_restful import marshal_with
 from flask_restful import reqparse, inputs
 
 from classes.ListResource import ListResource
+from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.SingleResource import SingleResource
 from classes.auth import access_required, Rights, token_required, auth
 from db import session
@@ -21,6 +22,17 @@ subscription_fields = {
     'type': fields.Integer,
     'place_id': fields.Integer,
     'car_id': fields.Integer,
+    'payment': NestedWithEmpty({
+        'id': fields.Integer,
+        'price': fields.Integer,
+        'tax': fields.Integer,
+        'value': fields.Integer,
+        'sale_date': fields.DateTime,
+        'paid_type': fields.Integer,
+        'paid_date': fields.DateTime,
+        'paid': fields.Boolean,
+        'uri': fields.Url('payment', absolute=True),
+    }, allow_null=True),
     'uri': fields.Url('subscription', absolute=True),
 }
 

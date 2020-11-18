@@ -14,6 +14,7 @@ if __name__ == "__main__":
     import models.car
     import models.zone
     import models.place
+    import models.payment
     import models.subscription
 
     engine = create_engine(config['SQLALCHEMY_DATABASE_URI'])

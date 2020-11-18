@@ -61,6 +61,11 @@ from resources.places import PlaceListResource, PlaceResource
 api.add_resource(PlaceListResource, '/api/places', endpoint='places')
 api.add_resource(PlaceResource, '/api/places/<string:id>', endpoint='place')
 
+from resources.payments import PaymentListResource, PaymentResource
+
+api.add_resource(PaymentListResource, '/api/payments', endpoint='payments')
+api.add_resource(PaymentResource, '/api/payments/<string:id>', endpoint='payment')
+
 from resources.subscriptions import SubscriptionListResource, SubscriptionResource, SubscriptionOwnResource
 
 api.add_resource(SubscriptionListResource, '/api/subscriptions', endpoint='subscriptions')
