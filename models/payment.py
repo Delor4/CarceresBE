@@ -12,7 +12,7 @@ class PaidTypes:
 
 
 class Payment(ModelBase):
-    __tablename__ = 'invoices'
+    __tablename__ = 'payments'
 
     sale_date = Column(DateTime(timezone=True), nullable=False)
     # price in cents

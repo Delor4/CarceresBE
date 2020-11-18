@@ -17,4 +17,4 @@ class Subscription(ModelBase):
     place_id = Column(Integer, ForeignKey("places.id"), nullable=False)
     car_id = Column(Integer, ForeignKey("cars.id"), nullable=False)
 
-    invoice = relationship("Payment", backref="subscriptions.id")
+    payment = relationship("Payment", uselist=False, backref="subscriptions.id")

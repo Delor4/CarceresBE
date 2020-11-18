@@ -5,6 +5,7 @@ from flask_restful import fields, abort
 from flask_restful import marshal_with
 from flask_restful import reqparse, inputs
 
+from classes import calc_price, calc_tax
 from classes.ListResource import ListResource
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.SingleResource import SingleResource
@@ -12,6 +13,7 @@ from classes.auth import access_required, Rights, token_required, auth
 from db import session
 from models.car import Car
 from models.client import Client
+from models.payment import Payment
 from models.place import Place
 from models.subscription import Subscription
 
@@ -131,6 +133,14 @@ class SubscriptionListResource(ListResource):
         )
         if parsed_args['start']:
             subscription.start = parsed_args['start']
+        session.add(subscription)
+        self.try_session_commit()
+        # make new payment for subscription
+        payment = Payment(sale_date=datetime.utcnow().replace(tzinfo=pytz.UTC),
+                          price=calc_price(subscription.start, subscription.end),
+                          tax=calc_tax(),
+                          subscription_id=subscription.id)
+        session.add(payment)
         return self.finalize_post_req(subscription)
 
 
