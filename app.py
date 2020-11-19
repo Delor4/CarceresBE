@@ -45,11 +45,12 @@ from resources.clients import ClientListResource, ClientResource
 api.add_resource(ClientListResource, '/api/clients', endpoint='clients')
 api.add_resource(ClientResource, '/api/clients/<string:id>', endpoint='client')
 
-from resources.cars import CarListResource, CarResource, CarOwnResource
+from resources.cars import CarListResource, CarResource, CarListOwnResource, CarOwnResource
 
 api.add_resource(CarListResource, '/api/cars', endpoint='cars')
 api.add_resource(CarResource, '/api/cars/<string:id>', endpoint='car')
-api.add_resource(CarOwnResource, '/api/client/cars', endpoint='own_cars')
+api.add_resource(CarListOwnResource, '/api/client/cars', endpoint='own_cars')
+api.add_resource(CarOwnResource, '/api/client/cars/<string:id>', endpoint='own_car')
 
 from resources.zones import ZoneListResource, ZoneResource
 

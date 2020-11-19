@@ -5,7 +5,7 @@ from flask_restful import reqparse
 
 from classes.ListResource import ListResource
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights, token_required, auth
+from classes.auth import access_required, Rights, token_required, auth, set_last_modified
 from db import session
 from models.car import Car
 from models.client import Client
@@ -96,7 +96,7 @@ class CarListResource(ListResource):
         return self.finalize_post_req(car)
 
 
-class CarOwnResource(ListResource):
+class CarListOwnResource(ListResource):
     """
     Resources for 'own_cars' (/api/client/cars) endpoint.
     """
@@ -116,3 +116,30 @@ class CarOwnResource(ListResource):
         if not client:
             abort(404, message="Client doesn't exist")
         return self.process_get_req(session.query(Car).filter(Car.client_id == client.id))
+
+
+class CarOwnResource(SingleResource):
+    """
+      Resources for 'own_car' (/api/client/cars/<id>) endpoint.
+      """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = Car
+        self.model_name = "car"
+        self.marshal_fields = car_fields
+
+    @token_required
+    @marshal_with(car_fields)
+    @set_last_modified
+    def get(self, id):
+        """
+        Returns the car of the currently authenticated client.
+        """
+        client = session.query(Client).filter(Client.user_id == auth.user.id).first()
+        if not client:
+            abort(404, message="Client doesn't exist")
+        car = session.query(Car).filter(id == Car.id).filter(Car.client_id == client.id).first()
+        if not car:
+            abort(404, message=f"{self.model_name.capitalize()} {id} doesn't exist")
+        return car, 200
