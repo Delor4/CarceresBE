@@ -22,7 +22,7 @@ class Payment(ModelBase):
     paid_type = Column(Integer, nullable=False, default=PaidTypes.NONE)
     paid_date = Column(DateTime(timezone=True), nullable=True)
 
-    subscription_id = Column(Integer, ForeignKey("subscriptions.id"))
+    subscription_id = Column(Integer, ForeignKey("subscriptions.id"), nullable=False, unique=True)
 
     @property
     def value(self) -> int:
