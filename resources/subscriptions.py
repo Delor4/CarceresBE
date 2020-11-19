@@ -9,7 +9,7 @@ from classes import calc_price, calc_tax
 from classes.ListResource import ListResource
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights, token_required, auth
+from classes.auth import access_required, Rights, token_required, auth, set_last_modified
 from db import session
 from models.car import Car
 from models.client import Client
@@ -144,7 +144,7 @@ class SubscriptionListResource(ListResource):
         return self.finalize_post_req(subscription)
 
 
-class SubscriptionOwnResource(ListResource):
+class SubscriptionListOwnResource(ListResource):
     """
     Resources for 'own_subscriptions' (/api/client/subscriptions) endpoint.
     """
@@ -202,3 +202,31 @@ class SubscriptionOwnResource(ListResource):
                           subscription_id=subscription.id)
         session.add(payment)
         return self.finalize_post_req(subscription)
+
+
+class SubscriptionOwnResource(SingleResource):
+    """
+    Resources for 'own_subscription' (/api/client/subscriptions/<id>) endpoint.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.model_class = Subscription
+        self.model_name = "subscription"
+        self.marshal_fields = subscription_fields
+
+    @token_required
+    @marshal_with(subscription_fields)
+    @set_last_modified
+    def get(self, id):
+        """
+        Returns the subscription data of the currently authenticated client.
+        """
+        client = session.query(Client).filter(Client.user_id == auth.user.id).first()
+        if not client:
+            abort(404, message="Client doesn't exist")
+        subscription = session.query(Subscription).filter(id == Subscription.id).join(Car).filter(
+            Subscription.car_id == Car.id).filter(Car.client_id == client.id).first()
+        if not subscription:
+            abort(404, message=f"{self.model_name.capitalize()} {id} doesn't exist")
+        return subscription, 200

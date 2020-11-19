@@ -68,11 +68,13 @@ api.add_resource(PaymentResource, '/api/payments/<string:id>', endpoint='payment
 api.add_resource(PaymentListOwnResource, '/api/client/payments', endpoint='own_payments')
 api.add_resource(PaymentOwnResource, '/api/client/payments/<string:id>', endpoint='own_payment')
 
-from resources.subscriptions import SubscriptionListResource, SubscriptionResource, SubscriptionOwnResource
+from resources.subscriptions import SubscriptionListResource, SubscriptionResource
+from resources.subscriptions import SubscriptionListOwnResource, SubscriptionOwnResource
 
 api.add_resource(SubscriptionListResource, '/api/subscriptions', endpoint='subscriptions')
 api.add_resource(SubscriptionResource, '/api/subscriptions/<string:id>', endpoint='subscription')
-api.add_resource(SubscriptionOwnResource, '/api/client/subscriptions', endpoint='own_subscriptions')
+api.add_resource(SubscriptionListOwnResource, '/api/client/subscriptions', endpoint='own_subscriptions')
+api.add_resource(SubscriptionOwnResource, '/api/client/subscriptions/<string:id>', endpoint='own_subscription')
 
 if app.debug:
     from resources.seed import SeedResource
