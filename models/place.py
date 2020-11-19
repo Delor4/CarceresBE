@@ -17,7 +17,7 @@ class Place(ModelBase):
     pos_y = Column(Float, nullable=True)
     blocked = Column(Boolean, nullable=False, default=False)
 
-    subscriptions = relationship("Subscription", backref="place.id")
+    subscriptions = relationship("Subscription", backref="place.id", lazy='joined')
 
     UniqueConstraint('nr', 'zone_id', name='uniq_place_1')
 

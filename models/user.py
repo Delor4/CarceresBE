@@ -15,7 +15,7 @@ class User(ModelBase):
     failed_logins = Column(Integer, default=0, nullable=False)
     blocked_since = Column(DateTime, nullable=True)
 
-    client = relationship("Client", uselist=False, back_populates="user")
+    client = relationship("Client", uselist=False, back_populates="user", lazy='joined')
 
     def hash_password(self, password):
         """

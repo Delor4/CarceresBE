@@ -15,6 +15,6 @@ class Client(ModelBase):
     phone = Column(String(15))
 
     user_id = Column(Integer, ForeignKey('users.id'), unique=True, nullable=True, default=None)
-    user = relationship("User", back_populates="client")
+    user = relationship("User", back_populates="client", lazy='joined')
 
     cars = relationship("Car", backref="clients.id", cascade="all, delete")

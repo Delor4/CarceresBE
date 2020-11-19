@@ -10,4 +10,4 @@ class Zone(ModelBase):
 
     name = Column(String(193), unique=True)
     bkg_file = Column(String(193), nullable=False)
-    places = relationship("Place", backref="zones.id")
+    places = relationship("Place", backref="zones.id", lazy='joined')
