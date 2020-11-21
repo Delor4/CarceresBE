@@ -35,6 +35,12 @@ subscription_fields = {
         'paid': fields.Boolean,
         'uri': fields.Url('payment', absolute=True),
     }, allow_null=True),
+    'car': fields.Nested({
+        'id': fields.Integer,
+        'plate': fields.String,
+        'client_id': fields.Integer,
+        'uri': fields.Url('car', absolute=True),
+    }),
     'uri': fields.Url('subscription', absolute=True),
 }
 

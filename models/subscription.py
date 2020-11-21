@@ -16,5 +16,6 @@ class Subscription(ModelBase):
 
     place_id = Column(Integer, ForeignKey("places.id"), nullable=False)
     car_id = Column(Integer, ForeignKey("cars.id"), nullable=False)
+    car = relationship("Car", uselist=False,  lazy='joined')
 
     payment = relationship("Payment", uselist=False, backref="subscriptions.id", lazy='joined', cascade="all, delete")
