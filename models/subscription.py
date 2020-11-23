@@ -15,6 +15,8 @@ class Subscription(ModelBase):
     type = Column(Integer, nullable=False)
 
     place_id = Column(Integer, ForeignKey("places.id"), nullable=False)
+    place = relationship("Place", uselist=False, lazy='joined')
+
     car_id = Column(Integer, ForeignKey("cars.id"), nullable=False)
     car = relationship("Car", uselist=False,  lazy='joined')
 

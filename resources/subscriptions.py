@@ -23,6 +23,19 @@ subscription_fields = {
     'end': fields.DateTime,
     'type': fields.Integer,
     'place_id': fields.Integer,
+    'place': fields.Nested({
+        'id': fields.Integer,
+        'nr': fields.Integer,
+        'zone_id': fields.Integer,
+        'zone': fields.Nested({
+            'id': fields.Integer,
+            'name': fields.String,
+            'uri': fields.Url('zone', absolute=True),
+        }),
+        'name': fields.String,
+        'occupied': fields.Boolean,
+        'uri': fields.Url('place', absolute=True),
+    }),
     'car_id': fields.Integer,
     'payment': NestedWithEmpty({
         'id': fields.Integer,

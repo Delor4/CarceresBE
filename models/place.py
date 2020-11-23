@@ -12,6 +12,8 @@ class Place(ModelBase):
 
     nr = Column(Integer)
     zone_id = Column(Integer, ForeignKey("zones.id"))
+    zone = relationship("Zone", uselist=False, lazy='joined')
+
     name = Column(String(193), nullable=True)
     pos_x = Column(Float, nullable=True)
     pos_y = Column(Float, nullable=True)

@@ -14,6 +14,11 @@ place_fields = {
     'id': fields.Integer,
     'nr': fields.Integer,
     'zone_id': fields.Integer,
+    'zone': fields.Nested({
+        'id': fields.Integer,
+        'name': fields.String,
+        'uri': fields.Url('zone', absolute=True),
+    }),
     'name': fields.String,
     'pos_x': fields.Float,
     'pos_y': fields.Float,

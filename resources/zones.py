@@ -6,13 +6,21 @@ from classes.ListResource import ListResource
 from classes.SingleResource import SingleResource
 from classes.auth import access_required, Rights
 from models.zone import Zone
-from resources.places import place_fields
 
 zone_fields = {
     'id': fields.Integer,
     'name': fields.String,
     'bkg_file': fields.String,
-    'places': fields.Nested(place_fields),
+    'places': fields.Nested({
+        'id': fields.Integer,
+        'nr': fields.Integer,
+        'zone_id': fields.Integer,
+        'name': fields.String,
+        'pos_x': fields.Float,
+        'pos_y': fields.Float,
+        'occupied': fields.Boolean,
+        'uri': fields.Url('place', absolute=True),
+    }),
     'uri': fields.Url('zone', absolute=True),
 }
 
