@@ -14,6 +14,7 @@ user_fields = {
     'user_type': fields.Integer,
     'failed_logins': fields.Integer,
     'blocked_since': fields.DateTime,
+    'email': fields.String,
     'uri': fields.Url('user', absolute=True),
     # 'password_hash': fields.String,
     'client': NestedWithEmpty({
@@ -32,6 +33,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('name', type=str)
 parser.add_argument('user_type', type=int)
 parser.add_argument('password', type=str, required=False, nullable=True)
+parser.add_argument('email', type=str, nullable=True)
 
 
 class UserResource(SingleResource):
@@ -70,6 +72,7 @@ class UserResource(SingleResource):
         user = self.get_model(id)
         user.name = parsed_args['name']
         user.user_type = parsed_args['user_type']
+        user.email = parsed_args['email']
         if parsed_args['password']:
             user.hash_password(parsed_args['password'])
         return self.finalize_put_req(user)
@@ -101,7 +104,7 @@ class UserListResource(ListResource):
         Create new user.
         """
         parsed_args = parser.parse_args()
-        user = User(name=parsed_args['name'], user_type=parsed_args['user_type'])
+        user = User(name=parsed_args['name'], user_type=parsed_args['user_type'], email=parsed_args['email'])
         if parsed_args['password']:
             user.hash_password(parsed_args['password'])
         return self.finalize_post_req(user)

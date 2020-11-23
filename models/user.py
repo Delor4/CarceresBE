@@ -14,6 +14,7 @@ class User(ModelBase):
     password_hash = Column(String(128), default="<not set>")
     failed_logins = Column(Integer, default=0, nullable=False)
     blocked_since = Column(DateTime, nullable=True)
+    email = Column(String(193), unique=True, nullable=True)
 
     client = relationship("Client", uselist=False, back_populates="user", lazy='joined')
 

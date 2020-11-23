@@ -38,6 +38,7 @@ client_fields = {
     'user': NestedWithEmpty({
         'name': fields.String,
         'user_type': fields.Integer,
+        'email': fields.String,
         'failed_logins': fields.Integer,
         'blocked_since': fields.DateTime,
         'uri': fields.Url('user_manage', absolute=True),
