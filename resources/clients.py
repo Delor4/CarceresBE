@@ -20,6 +20,7 @@ client_fields = {
     'cars': fields.Nested({
         'id': fields.Integer,
         'plate': fields.String,
+        'brand': fields.String,
         'client_id': fields.Integer,
         'uri': fields.Url('car', absolute=True),
     }),
