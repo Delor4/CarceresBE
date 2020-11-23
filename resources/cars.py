@@ -14,6 +14,16 @@ car_fields = {
     'id': fields.Integer,
     'plate': fields.String,
     'client_id': fields.Integer,
+    'client': fields.Nested({
+        'id': fields.Integer,
+        'name': fields.String,
+        'surname': fields.String,
+        'address': fields.String,
+        'city': fields.String,
+        'phone': fields.String,
+        'user_id': fields.Integer,
+        'uri': fields.Url('client', absolute=True),
+    }),
     'uri': fields.Url('car', absolute=True),
 }
 
