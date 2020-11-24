@@ -79,7 +79,6 @@ class ZoneListResource(ListResource):
         self.model_name = "zone"
         self.marshal_fields = zone_fields
 
-    @access_required(Rights.USER)
     def get(self):
         """
         Returns data of all zones.
