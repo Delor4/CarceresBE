@@ -1,17 +1,21 @@
 #!/usr/bin/env python
 import os
 
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import send_file, Flask
 from flask_cors import CORS
 from flask_restful import Api
 
 from classes.auth import get_auth_tokens, refresh_token
 from classes.config import config
+from send_emails import setup_scheduler
 
 app = Flask(__name__)
 app.config.from_mapping(config)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 api = Api(app)
+
+setup_scheduler(app)
 
 
 @app.route('/api/login')

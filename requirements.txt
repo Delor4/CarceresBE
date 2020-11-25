@@ -6,6 +6,7 @@ flask_script
 flask_migrate
 flask_httpauth
 Flask-Mail
+apscheduler
 passlib
 
 itsdangerous

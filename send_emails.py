@@ -2,11 +2,9 @@
 from datetime import datetime, timedelta
 
 import pytz
-from flask import Flask
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask_mail import Mail, Message
 
-from app import app
-from classes.config import config
 from db import session
 from models.car import Car
 from models.client import Client
@@ -16,8 +14,11 @@ from models.place import Place
 from models.zone import Zone
 from models.payment import Payment
 
+app = None
+
 
 def send_email_notifications():
+    global app
     with app.app_context():
         if not app.config['EMAILS_ENABLED']:
             return
@@ -42,7 +43,6 @@ def send_email_notifications():
                     .filter(Car.id == note.car_id) \
                     .first()
                 print("Sending notification to `%s` (less than day to end of subscription %s)." % (user.name, note.id))
-                print(user, user.email)
                 message = "Witaj, %s.\n" \
                           "Do końca opłaconego abonamentu parkingowego pozostało mniej niż 24 godziny.\n" \
                           "Prosimy o przedłużenie rezerwacji lub zabranie pojazdu z parkingu.\n" \
@@ -57,6 +57,14 @@ def send_email_notifications():
                 session.add(note)
                 session.flush()
         session.commit()
+
+
+def setup_scheduler(_app):
+    global app
+    app = _app
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(send_email_notifications, trigger='interval', seconds=60)
+    scheduler.start()
 
 
 if __name__ == "__main__":
