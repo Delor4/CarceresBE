@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from flask_restful import fields, abort
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
+from classes.FieldsDate import FieldsDate
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.SingleResource import SingleResource
 from classes.auth import token_required, auth, nocache
@@ -20,6 +23,7 @@ user_fields = {
         'address': fields.String,
         'city': fields.String,
         'phone': fields.String,
+        'birthday': FieldsDate(dt_format='%Y-%m-%d'),
         'uri': fields.Url('client_manage', absolute=True),
     }, allow_null=True),
 }
@@ -30,6 +34,7 @@ client_fields = {
     'address': fields.String,
     'city': fields.String,
     'phone': fields.String,
+    'birthday': FieldsDate(dt_format='%Y-%m-%d'),
     'uri': fields.Url('client_manage', absolute=True),
     'cars': NestedWithEmpty({
         'plate': fields.String,
@@ -53,6 +58,7 @@ parser_client.add_argument('surname', type=str, required=False, nullable=False)
 parser_client.add_argument('address', type=str, required=False, nullable=True)
 parser_client.add_argument('city', type=str, required=False, nullable=True)
 parser_client.add_argument('phone', type=str, required=False, nullable=True)
+parser_client.add_argument('birthday', type=lambda x: datetime.strptime(x, '%Y-%m-%d'), required=False, nullable=True)
 
 
 class UserManageResource(SingleResource):

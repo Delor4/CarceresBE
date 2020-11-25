@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from flask_restful import fields, abort
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
+from classes.FieldsDate import FieldsDate
 from classes.ListResource import ListResource
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.SingleResource import SingleResource
@@ -17,6 +20,7 @@ client_fields = {
     'address': fields.String,
     'city': fields.String,
     'phone': fields.String,
+    'birthday': FieldsDate(dt_format='%Y-%m-%d'),
     'cars': fields.Nested({
         'id': fields.Integer,
         'plate': fields.String,
@@ -42,6 +46,7 @@ parser.add_argument('address', type=str, required=False, nullable=True)
 parser.add_argument('city', type=str, required=False, nullable=True)
 parser.add_argument('phone', type=str, required=False, nullable=True)
 parser.add_argument('user_id', type=int, required=False, nullable=True)
+parser.add_argument('birthday', type=lambda x: datetime.strptime(x, '%Y-%m-%d'), required=False, nullable=True)
 
 
 class ClientResource(SingleResource):
@@ -90,6 +95,7 @@ class ClientResource(SingleResource):
         client.address = parsed_args['address']
         client.city = parsed_args['city']
         client.phone = parsed_args['phone']
+        client.birthday = parsed_args['birthday']
 
         client.user_id = parsed_args['user_id']
         user = session.query(User).filter(User.id == parsed_args['user_id']).first()
@@ -103,6 +109,7 @@ class ClientListResource(ListResource):
     """
     Resources for 'clients' (/api/clients/<id>) endpoint.
     """
+
     def __init__(self):
         super().__init__()
         self.model_class = Client
@@ -134,6 +141,7 @@ class ClientListResource(ListResource):
                         city=parsed_args['city'],
                         phone=parsed_args['phone'],
                         user_id=parsed_args['user_id'],
+                        birthday=parsed_args['birthday'],
                         )
 
         user = session.query(User).filter(User.id == parsed_args['user_id']).first()

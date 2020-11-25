@@ -2,6 +2,7 @@ from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
+from classes.FieldsDate import FieldsDate
 from classes.ListResource import ListResource
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.SingleResource import SingleResource
@@ -24,6 +25,7 @@ user_fields = {
         'address': fields.String,
         'city': fields.String,
         'phone': fields.String,
+        'birthday': FieldsDate(dt_format='%Y-%m-%d'),
         'user_id': fields.Integer,
         'uri': fields.Url('client', absolute=True),
     }, allow_null=True),
