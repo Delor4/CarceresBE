@@ -24,3 +24,17 @@ AUTOBLOCKADE_ATTEMPTS = 5
 AUTOBLOCKADE_TIME = 10
 
 # DEFAULT_PAGE_LIMIT = 50
+
+# emails (example for gmail account)
+EMAILS_ENABLED = False
+MAIL_SERVER = 'smtp.gmail.com'  # default ‘localhost’
+MAIL_PORT = 465  # : default 25
+MAIL_USE_TLS = False  #: default False
+MAIL_USE_SSL = True  #: default False
+# MAIL_DEBUG : default app.debug
+MAIL_USERNAME = 'accountID@gmail.com'  # : default None
+MAIL_PASSWORD = '...'  # : default None
+MAIL_DEFAULT_SENDER = 'senderID@gmail.com'  # : default None
+# MAIL_MAX_EMAILS : default None
+# MAIL_SUPPRESS_SEND : default app.testing
+# MAIL_ASCII_ATTACHMENTS : default False

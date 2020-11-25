@@ -13,7 +13,7 @@ import models.place
 import models.subscription
 
 app = Flask(__name__)
-app.config.from_object(config)
+app.config.from_mapping(config)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
