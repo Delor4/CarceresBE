@@ -6,6 +6,7 @@ from flask_restful import marshal_with
 from flask_restful import reqparse, inputs
 
 from classes import calc_price, calc_tax
+from classes.FieldsDate import FieldsDate
 from classes.ListResource import ListResource
 from classes.NestedWidthEmpty import NestedWithEmpty
 from classes.SingleResource import SingleResource
@@ -37,6 +38,31 @@ subscription_fields = {
         'uri': fields.Url('place', absolute=True),
     }),
     'car_id': fields.Integer,
+    'car': fields.Nested({
+        'id': fields.Integer,
+        'plate': fields.String,
+        'brand': fields.String,
+        'client_id': fields.Integer,
+        'client': fields.Nested({
+            'id': fields.Integer,
+            'name': fields.String,
+            'surname': fields.String,
+            'address': fields.String,
+            'city': fields.String,
+            'phone': fields.String,
+            'birthday': FieldsDate(dt_format='%Y-%m-%d'),
+            'user_id': fields.Integer,
+            'user': NestedWithEmpty({
+                'id': fields.Integer,
+                'name': fields.String,
+                'email': fields.String,
+                'user_type': fields.Integer,
+                'uri': fields.Url('user', absolute=True),
+            }, allow_null=True),
+            'uri': fields.Url('client', absolute=True),
+        }),
+        'uri': fields.Url('car', absolute=True),
+    }),
     'payment': NestedWithEmpty({
         'id': fields.Integer,
         'price': fields.Integer,
@@ -48,13 +74,6 @@ subscription_fields = {
         'paid': fields.Boolean,
         'uri': fields.Url('payment', absolute=True),
     }, allow_null=True),
-    'car': fields.Nested({
-        'id': fields.Integer,
-        'plate': fields.String,
-        'brand': fields.String,
-        'client_id': fields.Integer,
-        'uri': fields.Url('car', absolute=True),
-    }),
     'uri': fields.Url('subscription', absolute=True),
 }
 
