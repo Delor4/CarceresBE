@@ -16,7 +16,6 @@ user_fields = {
     'user_type': fields.Integer,
     'failed_logins': fields.Integer,
     'blocked_since': fields.DateTime,
-    'uri': fields.Url('user_manage', absolute=True),
     'client': NestedWithEmpty({
         'name': fields.String,
         'surname': fields.String,
@@ -26,6 +25,7 @@ user_fields = {
         'birthday': FieldsDate(dt_format='%Y-%m-%d'),
         'uri': fields.Url('client_manage', absolute=True),
     }, allow_null=True),
+    'uri': fields.Url('user_manage', absolute=True),
 }
 
 client_fields = {
@@ -84,7 +84,9 @@ class UserManageResource(SingleResource):
         """
         parsed_args = parser_user.parse_args()
         auth.user.hash_password(parsed_args['password'])
-        self.finalize_put_req(auth.user)
+        session.add(auth.user)
+        self.try_session_commit()
+        return auth.user, 201
 
 
 class ClientManageResource(SingleResource):
