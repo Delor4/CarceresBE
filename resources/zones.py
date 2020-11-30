@@ -4,7 +4,7 @@ from flask_restful import reqparse
 
 from classes.ListResource import ListResource
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights
+from classes.auth import access_required, Rights, nocache
 from db import session
 from models.place import Place
 from models.zone import Zone
@@ -111,6 +111,7 @@ class ZoneInfoResource(Resource):
     Resources for 'zone' info (/api/zones/<id>/info) endpoint.
     """
 
+    @nocache
     @marshal_with(zone_info_fields)
     def get(self, id):
         """
