@@ -56,10 +56,11 @@ api.add_resource(CarResource, '/api/cars/<string:id>', endpoint='car')
 api.add_resource(CarListOwnResource, '/api/client/cars', endpoint='own_cars')
 api.add_resource(CarOwnResource, '/api/client/cars/<string:id>', endpoint='own_car')
 
-from resources.zones import ZoneListResource, ZoneResource
+from resources.zones import ZoneListResource, ZoneResource, ZoneInfoResource
 
 api.add_resource(ZoneListResource, '/api/zones', endpoint='zones')
 api.add_resource(ZoneResource, '/api/zones/<string:id>', endpoint='zone')
+api.add_resource(ZoneInfoResource, '/api/zones/<string:id>/info', endpoint='zone_info')
 
 from resources.places import PlaceListResource, PlaceResource
 

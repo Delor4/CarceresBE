@@ -1,10 +1,12 @@
-from flask_restful import fields
+from flask_restful import fields, abort, Resource
 from flask_restful import marshal_with
 from flask_restful import reqparse
 
 from classes.ListResource import ListResource
 from classes.SingleResource import SingleResource
 from classes.auth import access_required, Rights
+from db import session
+from models.place import Place
 from models.zone import Zone
 
 zone_fields = {
@@ -94,3 +96,37 @@ class ZoneListResource(ListResource):
         parsed_args = parser.parse_args()
         zone = Zone(name=parsed_args['name'], bkg_file=parsed_args['bkg_file'])
         return self.finalize_post_req(zone)
+
+
+zone_info_fields = {
+    'all': fields.Integer,
+    'free': fields.Integer,
+    'occupied': fields.Integer,
+    'zone_id': fields.Integer,
+}
+
+
+class ZoneInfoResource(Resource):
+    """
+    Resources for 'zone' info (/api/zones/<id>/info) endpoint.
+    """
+
+    @marshal_with(zone_info_fields)
+    def get(self, id):
+        """
+        Returns zone's info data.
+        """
+        model = session.query(Zone).filter(Zone.id == id).first()
+        if not model:
+            abort(404, message=f"{self.model_name.capitalize()} {id} doesn't exist")
+        info = {}
+        places_query = session.query(Place).filter(Place.zone_id == id)
+        info['all'] = places_query.count()
+        places = places_query.all()
+        info['occupied'] = 0
+        for place in places:
+            if place.occupied:
+                info['occupied'] += 1
+        info['free'] = info['all'] - info['occupied']
+        info['zone_id'] = id
+        return info
