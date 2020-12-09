@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from email.utils import formatdate, format_datetime
 from functools import wraps, update_wrapper
 
-from flask import request, jsonify, make_response, Response
+from flask import request, jsonify, make_response, Response, current_app
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import abort
 from itsdangerous import SignatureExpired, BadSignature, TimedJSONWebSignatureSerializer as Serializer
@@ -89,14 +89,16 @@ def verify_password(username: str, password: str) -> bool:
         if user.failed_logins >= config['AUTOBLOCKADE_ATTEMPTS']:
             user.blocked_since = datetime.now() + timedelta(minutes=config['AUTOBLOCKADE_TIME'])
             user.failed_logins = 0
-            # TODO: send msg to logging system
+            current_app.logger.info('%s blockaded for %i minutes', user.name, config['AUTOBLOCKADE_TIME'])
         session.add(user)
         session.commit()
+        current_app.logger.info('%s failed to log in', user.name)
         return False
     auth.user = user
     user.failed_logins = 0
     session.add(user)
     session.commit()
+    current_app.logger.info('%s logged in successfully', user.name)
     return True
 
 
@@ -169,6 +171,7 @@ def _check_token(token, grand_type='access'):
     except SignatureExpired:
         abort(401, message="token expired")
     except BadSignature:
+        current_app.logger.info('invalid access token')
         abort(401, message="token is invalid")
     if not data['grand_type'] or data['grand_type'] != grand_type:
         abort(401, message='an {} token is missing'.format(grand_type))
