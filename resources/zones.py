@@ -10,25 +10,27 @@ from models.place import Place
 from models.zone import Zone
 
 zone_fields = {
-    'id': fields.Integer,
-    'name': fields.String,
-    'bkg_file': fields.String,
-    'places': fields.Nested({
-        'id': fields.Integer,
-        'nr': fields.Integer,
-        'zone_id': fields.Integer,
-        'name': fields.String,
-        'pos_x': fields.Float,
-        'pos_y': fields.Float,
-        'occupied': fields.Boolean,
-        'uri': fields.Url('place', absolute=True),
-    }),
-    'uri': fields.Url('zone', absolute=True),
+    "id": fields.Integer,
+    "name": fields.String,
+    "bkg_file": fields.String,
+    "places": fields.Nested(
+        {
+            "id": fields.Integer,
+            "nr": fields.Integer,
+            "zone_id": fields.Integer,
+            "name": fields.String,
+            "pos_x": fields.Float,
+            "pos_y": fields.Float,
+            "occupied": fields.Boolean,
+            "uri": fields.Url("place", absolute=True),
+        }
+    ),
+    "uri": fields.Url("zone", absolute=True),
 }
 
 parser = reqparse.RequestParser()
-parser.add_argument('name', type=str)
-parser.add_argument('bkg_file', type=str)
+parser.add_argument("name", type=str)
+parser.add_argument("bkg_file", type=str)
 
 
 class ZoneResource(SingleResource):
@@ -65,8 +67,8 @@ class ZoneResource(SingleResource):
         """
         parsed_args = parser.parse_args()
         zone = self.get_model(id)
-        zone.name = parsed_args['name']
-        zone.bkg_file = parsed_args['bkg_file']
+        zone.name = parsed_args["name"]
+        zone.bkg_file = parsed_args["bkg_file"]
         return self.finalize_put_req(zone)
 
 
@@ -94,15 +96,15 @@ class ZoneListResource(ListResource):
         Create new zone.
         """
         parsed_args = parser.parse_args()
-        zone = Zone(name=parsed_args['name'], bkg_file=parsed_args['bkg_file'])
+        zone = Zone(name=parsed_args["name"], bkg_file=parsed_args["bkg_file"])
         return self.finalize_post_req(zone)
 
 
 zone_info_fields = {
-    'all': fields.Integer,
-    'free': fields.Integer,
-    'occupied': fields.Integer,
-    'zone_id': fields.Integer,
+    "all": fields.Integer,
+    "free": fields.Integer,
+    "occupied": fields.Integer,
+    "zone_id": fields.Integer,
 }
 
 
@@ -122,12 +124,12 @@ class ZoneInfoResource(Resource):
             abort(404, message=f"{self.model_name.capitalize()} {id} doesn't exist")
         info = {}
         places_query = session.query(Place).filter(Place.zone_id == id)
-        info['all'] = places_query.count()
+        info["all"] = places_query.count()
         places = places_query.all()
-        info['occupied'] = 0
+        info["occupied"] = 0
         for place in places:
             if place.occupied:
-                info['occupied'] += 1
-        info['free'] = info['all'] - info['occupied']
-        info['zone_id'] = id
+                info["occupied"] += 1
+        info["free"] = info["all"] - info["occupied"]
+        info["zone_id"] = id
         return info

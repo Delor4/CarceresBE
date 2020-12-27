@@ -19,9 +19,15 @@ class SingleResource(ResourceBase):
         """
         Get and return model from the database. Return 404 when model is absent.
         """
-        model = session.query(self.model_class).filter(self.model_class.id == model_id).first()
+        model = (
+            session.query(self.model_class)
+            .filter(self.model_class.id == model_id)
+            .first()
+        )
         if not model:
-            abort(404, message=f"{self.model_name.capitalize()} {model_id} doesn't exist")
+            abort(
+                404, message=f"{self.model_name.capitalize()} {model_id} doesn't exist"
+            )
         return model
 
     @set_last_modified
@@ -40,7 +46,13 @@ class SingleResource(ResourceBase):
         model = self.get_model(model_id)
         session.delete(model)
         self.try_session_commit()
-        return {}, 204, self.make_response_headers(location=url_for(self.model_name + 's', _external=True))
+        return (
+            {},
+            204,
+            self.make_response_headers(
+                location=url_for(self.model_name + "s", _external=True)
+            ),
+        )
 
     @nocache
     def finalize_put_req(self, model):

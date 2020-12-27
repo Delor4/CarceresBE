@@ -12,7 +12,7 @@ class PaidTypes:
 
 
 class Payment(ModelBase):
-    __tablename__ = 'payments'
+    __tablename__ = "payments"
 
     sale_date = Column(DateTime(timezone=True), nullable=False)
     # price in cents
@@ -22,7 +22,9 @@ class Payment(ModelBase):
     paid_type = Column(Integer, nullable=False, default=PaidTypes.NONE)
     paid_date = Column(DateTime(timezone=True), nullable=True)
 
-    subscription_id = Column(Integer, ForeignKey("subscriptions.id"), nullable=False, unique=True)
+    subscription_id = Column(
+        Integer, ForeignKey("subscriptions.id"), nullable=False, unique=True
+    )
 
     @property
     def value(self) -> int:
@@ -30,6 +32,10 @@ class Payment(ModelBase):
 
     @property
     def paid(self):
-        if self.paid_type != PaidTypes.NONE and self.paid_date and self.paid_date is not None:
+        if (
+            self.paid_type != PaidTypes.NONE
+            and self.paid_date
+            and self.paid_date is not None
+        ):
             return True
         return False

@@ -13,11 +13,9 @@ class ResourceBase(Resource):
         """
         Return additional response headers.
         """
-        headers = {
-
-        }
+        headers = {}
         if location is not None:
-            headers['Location'] = location
+            headers["Location"] = location
         return headers
 
     def try_session_commit(self):

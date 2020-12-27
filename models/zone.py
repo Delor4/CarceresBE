@@ -6,8 +6,10 @@ from classes.ModelBase import ModelBase
 
 
 class Zone(ModelBase):
-    __tablename__ = 'zones'
+    __tablename__ = "zones"
 
     name = Column(String(193), unique=True)
     bkg_file = Column(String(193), nullable=False)
-    places = relationship("Place", backref="zones.id", lazy='joined', cascade="all, delete")
+    places = relationship(
+        "Place", backref="zones.id", lazy="joined", cascade="all, delete"
+    )

@@ -9,5 +9,12 @@ class ModelBase(Base):
     __abstract__ = True
     id = Column(Integer, primary_key=True)
 
-    created_on = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
-    updated_on = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_on = Column(
+        DateTime(timezone=True), default=datetime.utcnow, nullable=False
+    )
+    updated_on = Column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
+    )

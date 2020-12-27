@@ -7,7 +7,7 @@ from classes.ModelBase import ModelBase
 
 
 class User(ModelBase):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     name = Column(String(193), unique=True)
     user_type = Column(Integer)  # see classes.auth.Rights
@@ -16,7 +16,7 @@ class User(ModelBase):
     blocked_since = Column(DateTime, nullable=True)
     email = Column(String(193), unique=True, nullable=True)
 
-    client = relationship("Client", uselist=False, back_populates="user", lazy='joined')
+    client = relationship("Client", uselist=False, back_populates="user", lazy="joined")
 
     def hash_password(self, password):
         """

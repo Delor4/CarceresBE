@@ -5,7 +5,9 @@ from sqlalchemy.orm import sessionmaker
 
 from classes.config import config
 
-Session = sessionmaker(autocommit=False,
-                       autoflush=False,
-                       bind=create_engine(config['SQLALCHEMY_DATABASE_URI']))
+Session = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=create_engine(config["SQLALCHEMY_DATABASE_URI"]),
+)
 session = scoped_session(Session)

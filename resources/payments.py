@@ -7,7 +7,13 @@ from flask_restful import reqparse
 
 from classes.ListResource import ListResource
 from classes.SingleResource import SingleResource
-from classes.auth import access_required, Rights, auth, token_required, set_last_modified
+from classes.auth import (
+    access_required,
+    Rights,
+    auth,
+    token_required,
+    set_last_modified,
+)
 from db import session
 from models.car import Car
 from models.client import Client
@@ -15,27 +21,31 @@ from models.payment import Payment, PaidTypes
 from models.subscription import Subscription
 
 payment_fields = {
-    'id': fields.Integer,
-    'price': fields.Integer,
-    'tax': fields.Integer,
-    'value': fields.Integer,
-    'sale_date': fields.DateTime,
-    'paid_type': fields.Integer,
-    'paid_date': fields.DateTime,
-    'paid': fields.Boolean,
-    'subscription_id': fields.Integer,
-    'uri': fields.Url('payment', absolute=True),
+    "id": fields.Integer,
+    "price": fields.Integer,
+    "tax": fields.Integer,
+    "value": fields.Integer,
+    "sale_date": fields.DateTime,
+    "paid_type": fields.Integer,
+    "paid_date": fields.DateTime,
+    "paid": fields.Boolean,
+    "subscription_id": fields.Integer,
+    "uri": fields.Url("payment", absolute=True),
 }
 
 parser = reqparse.RequestParser()
-parser.add_argument('subscription_id', type=int, required=True, nullable=False)
-parser.add_argument('price', type=int, required=True, nullable=False)
-parser.add_argument('tax', type=int, required=True, nullable=False)
-parser.add_argument('sale_date', type=inputs.datetime_from_iso8601, required=True, nullable=False)
+parser.add_argument("subscription_id", type=int, required=True, nullable=False)
+parser.add_argument("price", type=int, required=True, nullable=False)
+parser.add_argument("tax", type=int, required=True, nullable=False)
+parser.add_argument(
+    "sale_date", type=inputs.datetime_from_iso8601, required=True, nullable=False
+)
 
 parser_paid = reqparse.RequestParser()
-parser_paid.add_argument('paid_type', type=int, required=True, nullable=False)
-parser_paid.add_argument('paid_date', type=inputs.datetime_from_iso8601, required=False, nullable=True)
+parser_paid.add_argument("paid_type", type=int, required=True, nullable=False)
+parser_paid.add_argument(
+    "paid_date", type=inputs.datetime_from_iso8601, required=False, nullable=True
+)
 
 
 class PaymentResource(SingleResource):
@@ -72,11 +82,14 @@ class PaymentResource(SingleResource):
         """
         parsed_args = parser_paid.parse_args()
         payment = self.get_model(id)
-        payment.paid_type = parsed_args['paid_type']
-        if parsed_args['paid_date'] is None and parsed_args['paid_type'] != PaidTypes.NONE:
+        payment.paid_type = parsed_args["paid_type"]
+        if (
+            parsed_args["paid_date"] is None
+            and parsed_args["paid_type"] != PaidTypes.NONE
+        ):
             payment.paid_date = datetime.utcnow().replace(tzinfo=pytz.UTC)
         else:
-            payment.paid_date = parsed_args['paid_date']
+            payment.paid_date = parsed_args["paid_date"]
         return self.finalize_put_req(payment)
 
 
@@ -105,7 +118,11 @@ class PaymentListResource(ListResource):
         Create new payment.
         """
         parsed_args = parser.parse_args()
-        payment = Payment(price=parsed_args['price'], tax=parsed_args['tax'], sale_date=parsed_args['sale_date'])
+        payment = Payment(
+            price=parsed_args["price"],
+            tax=parsed_args["tax"],
+            sale_date=parsed_args["sale_date"],
+        )
         return self.finalize_post_req(payment)
 
 
@@ -128,16 +145,20 @@ class PaymentListOwnResource(ListResource):
         client = session.query(Client).filter(Client.user_id == auth.user.id).first()
         if not client:
             abort(404, message="Client doesn't exist")
-        return self.process_get_req(session.query(Payment)
-                                    .join(Subscription).filter(Payment.subscription_id == Subscription.id)
-                                    .join(Car).filter(Subscription.car_id == Car.id)
-                                    .filter(Car.client_id == client.id))
+        return self.process_get_req(
+            session.query(Payment)
+            .join(Subscription)
+            .filter(Payment.subscription_id == Subscription.id)
+            .join(Car)
+            .filter(Subscription.car_id == Car.id)
+            .filter(Car.client_id == client.id)
+        )
 
 
 class PaymentOwnResource(SingleResource):
     """
-      Resources for 'own_payment' (/api/client/payments/<id>) endpoint.
-      """
+    Resources for 'own_payment' (/api/client/payments/<id>) endpoint.
+    """
 
     def __init__(self):
         super().__init__()
@@ -155,9 +176,16 @@ class PaymentOwnResource(SingleResource):
         client = session.query(Client).filter(Client.user_id == auth.user.id).first()
         if not client:
             abort(404, message="Client doesn't exist")
-        payment = session.query(Payment).filter(Payment.id == id).join(Subscription).filter(
-            Payment.subscription_id == Subscription.id).join(Car).filter(Subscription.car_id == Car.id).filter(
-            Car.client_id == client.id).first()
+        payment = (
+            session.query(Payment)
+            .filter(Payment.id == id)
+            .join(Subscription)
+            .filter(Payment.subscription_id == Subscription.id)
+            .join(Car)
+            .filter(Subscription.car_id == Car.id)
+            .filter(Car.client_id == client.id)
+            .first()
+        )
         if not payment:
             abort(404, message=f"{self.model_name.capitalize()} {id} doesn't exist")
         return payment, 200
@@ -174,9 +202,16 @@ class PaymentOwnResource(SingleResource):
         if not client:
             abort(404, message="Client doesn't exist")
 
-        payment = session.query(Payment).filter(self.model_class.id == id).join(Subscription).filter(
-            Payment.subscription_id == Subscription.id).join(Car).filter(Subscription.car_id == Car.id).filter(
-            Car.client_id == client.id).first()
+        payment = (
+            session.query(Payment)
+            .filter(self.model_class.id == id)
+            .join(Subscription)
+            .filter(Payment.subscription_id == Subscription.id)
+            .join(Car)
+            .filter(Subscription.car_id == Car.id)
+            .filter(Car.client_id == client.id)
+            .first()
+        )
         if not payment:
             abort(404, message=f"{self.model_name.capitalize()} {id} doesn't exist")
 
