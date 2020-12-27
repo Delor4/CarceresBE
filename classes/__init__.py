@@ -12,7 +12,7 @@ price_by_days = {
 def _calc_price(days):
     for _time in price_by_days:
         if days >= _time:
-            return math.ceil(days / _time) * price_by_days[_time]
+            return math.floor(days / _time) * price_by_days[_time]
     return price_by_days[1]
 
 
