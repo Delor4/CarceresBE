@@ -2,6 +2,7 @@
 import os
 
 from apscheduler.schedulers.background import BackgroundScheduler
+from werkzeug.utils import safe_join 
 from flask import send_file, Flask
 from flask_cors import CORS
 from flask_restful import Api
@@ -122,7 +123,7 @@ def route_frontend(path):
     """
     # ...could be a static file needed by the front end that
     # doesn't use the `static` path (like in `<script src="bundle.js">`)
-    file_path = os.path.join(app.static_folder, path)
+    file_path = safe_join(app.static_folder, path)
     if os.path.isfile(file_path):
         return send_file(file_path)
     # ...or should be handled by the SPA's "router" in front end
